@@ -191,7 +191,7 @@ class Edit extends Component {
         },
         this.props.block,
         // INTERAKTIV START
-      ).then(this.postUploadHandler);
+      ).then((res) => this.postUploadHandler(res));
       // END
     });
   };
@@ -250,7 +250,7 @@ class Edit extends Component {
         },
         this.props.block,
         // INTERAKTIV START
-      ).then(this.postUploadHandler);
+      ).then((res) => this.postUploadHandler(res));
       // END
     });
   };
