@@ -30,7 +30,7 @@ export const getAltTextFromObject = (data) => {
   return altText;
 }
 
-private const getErrorMessage = (status) => {
+const getErrorMessage = (status) => {
   switch(status) {
     case 409:
       return addonMessages.altTextGenNotAllowed
@@ -69,7 +69,7 @@ export const showSuccessToast = (title, content) => {
   )
 }
 
-private const onSuccess = (context, res) => {
+const onSuccess = (context, res) => {
   context.props.onChangeBlock(context.props.block, {
     ...context.props.data,
     alt: res.alt_text,
@@ -84,7 +84,7 @@ private const onSuccess = (context, res) => {
   )
 }
 
-private const onError = (context, res) => {
+const onError = (context, res) => {
   const errorMessage = getErrorMessage(res.status);
 
   showErrorToast(
