@@ -34,6 +34,7 @@ import clearSVG from '@plone/volto/icons/clear.svg';
 import navTreeSVG from '@plone/volto/icons/nav.svg';
 import aheadSVG from '@plone/volto/icons/ahead.svg';
 import uploadSVG from '@plone/volto/icons/upload.svg';
+import { getAltTextFromBlock, postUploadHandler } from 'volto-interaktiv-alttextgenerator/helpers';
 
 const Dropzone = loadable(() => import('react-dropzone'));
 
@@ -129,39 +130,6 @@ class Edit extends Component {
     );
   }
 
-  // INTERAKTIV START
-  /**
-   * post-upload handler that will generate an alternative text for the image.
-   * @param {object} res
-   * @returns {undefined}
-   */
-  postUploadHandler(res) {
-    const contentUrl = flattenToAppURL(res['@id']);
-    toast.info(
-      <Toast
-        info
-        title={this.props.intl.formatMessage(addonMessages.altTextGenStartLabel)}
-      />,
-    );
-    this.props.updateAltTextSuggestion(contentUrl).then((data) => {
-      this.props.onChangeBlock(this.props.block, {
-        ...this.props.data,
-        alt: data.alt_text,
-        alt_ai_generated: data.alt_text_ai_generated,
-        model_used: data.alt_text_model_used,
-        generation_date: data.alt_text_generation_date,
-      });
-      toast.success(
-        <Toast
-          success
-          title={this.props.intl.formatMessage(addonMessages.altTextGenSuccessTitle)}
-          content={this.props.intl.formatMessage(addonMessages.altTextGenSuccessLabel)}
-        />,
-      );
-    });
-  }
-  // END
-
   /**
    * Upload image handler (not used), but useful in case that we want a button
    * not powered by react-dropzone
@@ -191,7 +159,7 @@ class Edit extends Component {
         },
         this.props.block,
         // INTERAKTIV START
-      ).then((res) => this.postUploadHandler(res));
+      ).then((res) => postUploadHandler(this, res));
       // END
     });
   };
@@ -250,7 +218,7 @@ class Edit extends Component {
         },
         this.props.block,
         // INTERAKTIV START
-      ).then((res) => this.postUploadHandler(res));
+      ).then((res) => postUploadHandler(this, res));
       // END
     });
   };
@@ -327,11 +295,7 @@ class Edit extends Component {
                 })()
                 : data.url
             }
-            alt={data.alt ? (
-              data.alt_ai_generated
-                ? `${data.alt} (${data.model_used}, ${data.generation_date})`
-                : data.alt
-            ) : ''}
+            alt={getAltTextFromBlock(data)}
           />
         ) : (
           <div>

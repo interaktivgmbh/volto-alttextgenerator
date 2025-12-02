@@ -9,6 +9,9 @@ import { UniversalLink } from '@plone/volto/components';
 import cx from 'classnames';
 import { withBlockExtensions } from '@plone/volto/helpers';
 import { flattenToAppURL, isInternalURL } from '@plone/volto/helpers';
+// INTERAKTIV
+import { getAltTextFromBlock } from 'volto-interaktiv-alttextgenerator/helpers';
+// END
 
 /**
  * View image block class.
@@ -60,11 +63,7 @@ export const View = ({ data, detached, className }) => {
                     : data.url
                 }
                 // INTERAKTIV START
-                alt={data.alt ? (
-                  data.alt_ai_generated
-                    ? `${data.alt} (${data.model_used}, ${data.generation_date})`
-                    : data.alt
-                ) : ''}
+                alt={getAltTextFromBlock(data)}
                 // END
                 loading="lazy"
               />
