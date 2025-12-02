@@ -15,21 +15,20 @@ import cx from 'classnames';
 import { isEqual } from 'lodash';
 
 import { Icon, ImageSidebar, SidebarPortal } from '@plone/volto/components';
-import { withBlockExtensions } from '@plone/volto/helpers';
-import { createContent } from '@plone/volto/actions';
 import {
   flattenToAppURL,
   getBaseUrl,
   isInternalURL,
   validateFileUploadSize,
+  withBlockExtensions,
 } from '@plone/volto/helpers';
+import { createContent } from '@plone/volto/actions';
 // INTERAKTIV START
 import { updateAltTextSuggestion } from 'volto-interaktiv-alttextgenerator/actions/alttexts/alttexts';
 import { toast } from 'react-toastify';
 import Toast from '@plone/volto/components/manage/Toast/Toast';
 import addonMessages from 'volto-interaktiv-alttextgenerator/messages';
 // END
-
 import imageBlockSVG from '@plone/volto/components/manage/Blocks/Image/block-image.svg';
 import clearSVG from '@plone/volto/icons/clear.svg';
 import navTreeSVG from '@plone/volto/icons/nav.svg';
@@ -143,14 +142,14 @@ class Edit extends Component {
         info
         title={this.props.intl.formatMessage(addonMessages.altTextGenStartLabel)}
       />,
-    )
+    );
     this.props.updateAltTextSuggestion(contentUrl).then((data) => {
       this.props.onChangeBlock(this.props.block, {
         ...this.props.data,
         alt: data.alt_text,
         alt_ai_generated: data.alt_text_ai_generated,
         model_used: data.alt_text_model_used,
-        generation_date: data.alt_text_generation_date
+        generation_date: data.alt_text_generation_date,
       });
       toast.success(
         <Toast
@@ -158,8 +157,8 @@ class Edit extends Component {
           title={this.props.intl.formatMessage(addonMessages.altTextGenSuccessTitle)}
           content={this.props.intl.formatMessage(addonMessages.altTextGenSuccessLabel)}
         />,
-      )
-    })
+      );
+    });
   }
   // END
 
@@ -250,7 +249,7 @@ class Edit extends Component {
           },
         },
         this.props.block,
-      // INTERAKTIV START
+        // INTERAKTIV START
       ).then(this.postUploadHandler);
       // END
     });
@@ -315,17 +314,17 @@ class Edit extends Component {
             src={
               isInternalURL(data.url)
                 ? // Backwards compat in the case that the block is storing the full server URL
-                  (() => {
-                    if (data.size === 'l')
-                      return `${flattenToAppURL(data.url)}/@@images/image`;
-                    if (data.size === 'm')
-                      return `${flattenToAppURL(
-                        data.url,
-                      )}/@@images/image/preview`;
-                    if (data.size === 's')
-                      return `${flattenToAppURL(data.url)}/@@images/image/mini`;
+                (() => {
+                  if (data.size === 'l')
                     return `${flattenToAppURL(data.url)}/@@images/image`;
-                  })()
+                  if (data.size === 'm')
+                    return `${flattenToAppURL(
+                      data.url,
+                    )}/@@images/image/preview`;
+                  if (data.size === 's')
+                    return `${flattenToAppURL(data.url)}/@@images/image/mini`;
+                  return `${flattenToAppURL(data.url)}/@@images/image`;
+                })()
                 : data.url
             }
             alt={data.alt ? (
@@ -371,13 +370,23 @@ class Edit extends Component {
                                   // INTERAKTIV START
                                   mode: 'image',
                                   onSelectItem: (url, item) => {
+                                    const aiGenerated = item.alt_text_ai_generated;
+
+                                    const additionalData = aiGenerated
+                                      ? {
+                                        model_used: item.alt_text_model_used,
+                                        generation_date: item.alt_text_generation_date,
+                                      } : {};
+
                                     this.props.onChangeBlock(
                                       this.props.block, {
                                         ...this.props.data,
                                         alt: item.alt_text ?? '',
-                                        url
+                                        alt_ai_generated: aiGenerated,
+                                        ...additionalData,
+                                        url,
                                       });
-                                  }
+                                  },
                                   // END
                                 });
                               }}
