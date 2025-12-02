@@ -110,7 +110,9 @@ class Edit extends Component {
         ...this.props.data,
         url: nextProps.content['@id'],
         alt: '',
+        // INTERAKTIV START
         alt_ai_generated: false,
+        // END
       });
     }
   }
@@ -127,6 +129,39 @@ class Edit extends Component {
       !isEqual(this.props.data, nextProps.data)
     );
   }
+
+  // INTERAKTIV START
+  /**
+   * post-upload handler that will generate an alternative text for the image.
+   * @param {object} res
+   * @returns {undefined}
+   */
+  postUploadHandler(res) {
+    const contentUrl = flattenToAppURL(res['@id']);
+    toast.info(
+      <Toast
+        info
+        title={this.props.intl.formatMessage(addonMessages.altTextGenStartLabel)}
+      />,
+    )
+    this.props.updateAltTextSuggestion(contentUrl).then((data) => {
+      this.props.onChangeBlock(this.props.block, {
+        ...this.props.data,
+        alt: data.alt_text,
+        alt_ai_generated: data.alt_text_ai_generated,
+        model_used: data.alt_text_model_used,
+        generation_date: data.alt_text_generation_date
+      });
+      toast.success(
+        <Toast
+          success
+          title={this.props.intl.formatMessage(addonMessages.altTextGenSuccessTitle)}
+          content={this.props.intl.formatMessage(addonMessages.altTextGenSuccessLabel)}
+        />,
+      )
+    })
+  }
+  // END
 
   /**
    * Upload image handler (not used), but useful in case that we want a button
@@ -157,31 +192,7 @@ class Edit extends Component {
         },
         this.props.block,
         // INTERAKTIV START
-      ).then((res) => {
-        const contentUrl = flattenToAppURL(res["@id"]);
-        toast.info(
-          <Toast
-            info
-            title={this.props.intl.formatMessage(addonMessages.altTextGenStartLabel)}
-          />,
-        )
-        this.props.updateAltTextSuggestion(contentUrl).then((data) => {
-          this.props.onChangeBlock(this.props.block, {
-            ...this.props.data,
-            alt: data.alt_text,
-            alt_ai_generated: data.alt_text_ai_generated,
-            model_used: data.alt_text_model_used,
-            generation_date: data.alt_text_generation_date
-          });
-          toast.success(
-            <Toast
-              success
-              title={this.props.intl.formatMessage(addonMessages.altTextGenSuccessTitle)}
-              content={this.props.intl.formatMessage(addonMessages.altTextGenSuccessLabel)}
-            />,
-          )
-        })
-      });
+      ).then(this.postUploadHandler);
       // END
     });
   };
@@ -240,32 +251,7 @@ class Edit extends Component {
         },
         this.props.block,
       // INTERAKTIV START
-      ).then((res) => {
-        const contentUrl = flattenToAppURL(res["@id"]);
-        toast.info(
-          <Toast
-            info
-            title={this.props.intl.formatMessage(addonMessages.altTextGenStartLabel)}
-          />,
-        )
-        this.props.updateAltTextSuggestion(contentUrl).then((data) => {
-          console.log(data)
-          this.props.onChangeBlock(this.props.block, {
-            ...this.props.data,
-            alt: data.alt_text,
-            alt_ai_generated: data.alt_text_ai_generated,
-            model_used: data.alt_text_model_used,
-            generation_date: data.alt_text_generation_date
-          });
-          toast.success(
-            <Toast
-              success
-              title={this.props.intl.formatMessage(addonMessages.altTextGenSuccessTitle)}
-              content={this.props.intl.formatMessage(addonMessages.altTextGenSuccessLabel)}
-            />,
-          )
-        })
-      });
+      ).then(this.postUploadHandler);
       // END
     });
   };
