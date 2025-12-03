@@ -7,24 +7,24 @@ import Toast from '@plone/volto/components/manage/Toast/Toast';
 import addonMessages from 'volto-interaktiv-alttextgenerator/messages';
 
 export const getAltTextFromBlock = (data) => {
-  if (!data.alt) return '';
+  if (!data?.alt) return '';
 
   let altText = data.alt;
 
-  if (data.alt_ai_generated) {
-    altText += `(${data.model_used}, ${data.generation_date})`
+  if (data.alt_ai_generated && data.model_used && data.generation_date) {
+    altText += ` (${data.model_used}, ${data.generation_date})`
   }
 
   return altText;
 }
 
 export const getAltTextFromObject = (data) => {
-  if (!data.alt_text) return '';
+  if (!data || !data.alt_text) return '';
 
   let altText = data.alt_text;
 
-  if (data.alt_text_ai_generated) {
-    altText += `(${data.alt_text_model_used}, ${data.alt_text_generation_date})`
+  if (data.alt_text_ai_generated && data.alt_text_model_used && data.alt_text_generation_date) {
+    altText += ` (${data.alt_text_model_used}, ${data.alt_text_generation_date})`
   }
 
   return altText;
