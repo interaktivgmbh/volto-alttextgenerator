@@ -6,31 +6,90 @@ import Toast from '@plone/volto/components/manage/Toast/Toast';
 
 import addonMessages from 'volto-interaktiv-alttextgenerator/messages';
 
-export const getAltTextFromBlock = (data) => {
+interface ImageContextProps {
+  onChangeBlock: Function;
+  updateAltTextSuggestion: Function;
+  block: object;
+  data: object;
+  intl: any;
+}
+
+interface ImageContext {
+  props: ImageContextProps;
+}
+
+interface Message {
+  id: string;
+  defaultMessage: string;
+}
+
+interface ImageBlockData {
+  alt: string;
+  alt_ai_generated: boolean;
+  model_used?: string;
+  generation_date?: string;
+}
+
+interface ImageObjectData {
+  "@id": string;
+  alt_text?: string;
+  alt_text_ai_generated: boolean;
+  alt_text_model_used?: string;
+  alt_text_generation_date?: string;
+}
+
+interface ErrorResponse {
+  status: number;
+}
+
+/**
+ * Constructs the alternative text for an image from its block data.
+ * If the alternative text is generated using AI, this will append the
+ * model used for generation, as well as the generation date.
+ */
+export const getAltTextFromBlock = (data: ImageBlockData): string => {
   if (!data?.alt) return '';
 
   let altText = data.alt;
 
-  if (data.alt_ai_generated && data.model_used && data.generation_date) {
-    altText += ` (${data.model_used}, ${data.generation_date})`
+  if (data.alt_ai_generated && data.model_used) {
+    const altTextMetadata = [data.model_used];
+
+    if (data.generation_date) {
+      altTextMetadata.push(data.generation_date);
+    }
+
+    altText += `(${altTextMetadata.join(', ')})`;
   }
 
   return altText;
 }
 
-export const getAltTextFromObject = (data) => {
-  if (!data || !data.alt_text) return '';
+/**
+ * Constructs the alternative text for an image from its object data.
+ * The object data is returned when querying an image from the backend.
+ * If the alternative text is generated using AI, this will append the
+ * model used for generation, as well as the generation date.
+ */
+export const getAltTextFromObject = (data: ImageObjectData): string => {
+  if (!data?.alt_text) return '';
 
   let altText = data.alt_text;
 
-  if (data.alt_text_ai_generated && data.alt_text_model_used && data.alt_text_generation_date) {
-    altText += ` (${data.alt_text_model_used}, ${data.alt_text_generation_date})`
+  if (data.alt_text_ai_generated && data.alt_text_model_used) {
+    const altTextMetadata = [data.alt_text_model_used];
+
+    if (data.alt_text_generation_date) {
+      altTextMetadata.push(data.alt_text_generation_date);
+    }
+
+    altText += `(${altTextMetadata.join(', ')})`;
   }
 
   return altText;
 }
 
-const getErrorMessage = (status) => {
+const getErrorMessage = (status: number): Message => {
   switch(status) {
     case 409:
       return addonMessages.altTextGenNotAllowed
@@ -39,7 +98,7 @@ const getErrorMessage = (status) => {
   }
 }
 
-export const showInfoToast = (title, content) => {
+export const showInfoToast = (title: string, content: string): void => {
   toast.info(
     <Toast
       info
@@ -49,7 +108,7 @@ export const showInfoToast = (title, content) => {
   )
 }
 
-export const showErrorToast = (title, content) => {
+export const showErrorToast = (title: string, content: string): void => {
   toast.error(
     <Toast
       error
@@ -59,7 +118,7 @@ export const showErrorToast = (title, content) => {
   )
 }
 
-export const showSuccessToast = (title, content) => {
+export const showSuccessToast = (title: string, content: string): void => {
   toast.success(
     <Toast
       success
@@ -69,7 +128,11 @@ export const showSuccessToast = (title, content) => {
   )
 }
 
-const onSuccess = (context, res) => {
+const onSuccess = (
+  context: ImageContext,
+  res: ImageObjectData,
+  silent: boolean
+): void => {
   context.props.onChangeBlock(context.props.block, {
     ...context.props.data,
     alt: res.alt_text,
@@ -78,35 +141,48 @@ const onSuccess = (context, res) => {
     generation_date: res.alt_text_generation_date,
   });
 
-  showSuccessToast(
-    context.props.intl.formatMessage(addonMessages.altTextGenSuccessTitle),
-    context.props.intl.formatMessage(addonMessages.altTextGenSuccessLabel),
-  )
+  if (!silent) {
+    showSuccessToast(
+      context.props.intl.formatMessage(addonMessages.altTextGenSuccessTitle),
+      context.props.intl.formatMessage(addonMessages.altTextGenSuccessLabel),
+    )
+  }
 }
 
-const onError = (context, res) => {
+const onError = (
+  context: ImageContext,
+  res: ErrorResponse,
+  silent: boolean
+): void => {
   const errorMessage = getErrorMessage(res.status);
 
-  showErrorToast(
-    context.props.intl.formatMessage(addonMessages.altTextGenErrorTitle),
-    context.props.intl.formatMessage(errorMessage),
-  )
+  if (!silent) {
+    showErrorToast(
+      context.props.intl.formatMessage(addonMessages.altTextGenErrorTitle),
+      context.props.intl.formatMessage(errorMessage),
+    )
+  }
 }
 
 /**
  * Post-upload handler that will generate an alternative text for the image.
- * @param {any} context The class component context containing the props.
- * @param {object} res The result from the resolved createContent(...) Promise.
  * @returns {undefined}
  */
-export const postUploadHandler = (context, res)=> {
-  const contentUrl = flattenToAppURL(res['@id']);
-  showInfoToast(
-    undefined,
-    context.props.intl.formatMessage(addonMessages.altTextGenStartLabel),
-  );
+export const postUploadHandler = (
+  context: ImageContext,
+  res: ImageObjectData,
+  silent: boolean = false
+): void => {
+  const contentUrl: string = flattenToAppURL(res['@id']);
+
+  if (!silent) {
+    showInfoToast(
+      undefined,
+      context.props.intl.formatMessage(addonMessages.altTextGenStartLabel),
+    );
+  }
 
   context.props.updateAltTextSuggestion(contentUrl)
-    .then((data) => onSuccess(context, data))
-    .catch((err) => onError(context, err));
+    .then((data: ImageObjectData) => onSuccess(context, data, silent))
+    .catch((err: ErrorResponse) => onError(context, err, silent));
 }
