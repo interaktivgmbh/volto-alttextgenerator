@@ -59,7 +59,7 @@ export const getAltTextFromBlock = (data: ImageBlockData): string => {
       altTextMetadata.push(data.generation_date);
     }
 
-    altText += `(${altTextMetadata.join(', ')})`;
+    altText += ` (${altTextMetadata.join(', ')})`;
   }
 
   return altText;
@@ -83,7 +83,7 @@ export const getAltTextFromObject = (data: ImageObjectData): string => {
       altTextMetadata.push(data.alt_text_generation_date);
     }
 
-    altText += `(${altTextMetadata.join(', ')})`;
+    altText += ` (${altTextMetadata.join(', ')})`;
   }
 
   return altText;
