@@ -21,6 +21,10 @@ const messages = defineMessages({
     id: 'Error',
     defaultMessage: 'Error'
   },
+  altTextGenUnsupported: {
+    id: 'The generation of alt texts is not supported for this image type.',
+    defaultMessage: 'The generation of alt texts is not supported for this image type.'
+  },
   altTextGenNotAllowed: {
     id: 'The generation of alt texts is disabled for this content.',
     defaultMessage: 'The generation of alt texts is disabled for this content.'
