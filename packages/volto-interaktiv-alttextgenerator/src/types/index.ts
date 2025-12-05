@@ -50,3 +50,5 @@ export interface ImageObjectData {
 export interface ErrorResponse {
   status: number;
 }
+
+export type Messages = Record<string, Message>;

@@ -1,6 +1,7 @@
 import { defineMessages } from 'react-intl';
+import type { Messages } from 'volto-interaktiv-alttextgenerator/types';
 
-const messages = defineMessages({
+const messages: Messages = defineMessages({
   altTextGenStartLabel: {
     id: 'An alternative text is being generated in the background.',
     defaultMessage: 'An alternative text is being generated in the background.'
