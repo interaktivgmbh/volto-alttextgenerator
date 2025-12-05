@@ -91,6 +91,8 @@ export const getAltTextFromObject = (data: ImageObjectData): string => {
 
 const getErrorMessage = (status: number): Message => {
   switch(status) {
+    case 406:
+      return addonMessages.altTextGenUnsupported
     case 409:
       return addonMessages.altTextGenNotAllowed
     default:
