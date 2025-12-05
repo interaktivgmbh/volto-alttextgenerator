@@ -4,43 +4,14 @@ import { toast } from 'react-toastify';
 import { flattenToAppURL } from '@plone/volto/helpers';
 import Toast from '@plone/volto/components/manage/Toast/Toast';
 
+import type {
+  ImageBlockData,
+  ImageObjectData,
+  ImageContext,
+  ErrorResponse,
+  Message
+} from 'volto-interaktiv-alttextgenerator/types';
 import addonMessages from 'volto-interaktiv-alttextgenerator/messages';
-
-interface ImageContextProps {
-  onChangeBlock: Function;
-  updateAltTextSuggestion: Function;
-  block: object;
-  data: object;
-  intl: any;
-}
-
-interface ImageContext {
-  props: ImageContextProps;
-}
-
-interface Message {
-  id: string;
-  defaultMessage: string;
-}
-
-interface ImageBlockData {
-  alt: string;
-  alt_ai_generated: boolean;
-  model_used?: string;
-  generation_date?: string;
-}
-
-interface ImageObjectData {
-  "@id": string;
-  alt_text?: string;
-  alt_text_ai_generated: boolean;
-  alt_text_model_used?: string;
-  alt_text_generation_date?: string;
-}
-
-interface ErrorResponse {
-  status: number;
-}
 
 /**
  * Constructs the alternative text for an image from its block data.
