@@ -22,19 +22,23 @@ import { updateAltTextSuggestion } from 'volto-interaktiv-alttextgenerator/actio
  * If the alternative text is generated using AI, this will append the
  * model used for generation, as well as the generation date.
  */
-export const getAltTextFromBlock = (data: ImageBlockData): string => {
+export const getAltTextFromBlock = (data: ImageBlockData, intl): string => {
   if (!data?.alt) return '';
 
   let altText = data.alt;
 
-  if (data.alt_ai_generated && data.model_used) {
-    const altTextMetadata = [data.model_used];
+  if (data.alt_ai_generated) {
+    const altTextMetadata = [];
+
+    if (data.model_used) {
+      altTextMetadata.push(data.model_used);
+    }
 
     if (data.generation_date) {
       altTextMetadata.push(data.generation_date);
     }
 
-    altText += ` (${altTextMetadata.join(', ')})`;
+    altText += ` (${altTextMetadata.length > 0 ? altTextMetadata.join(', ') : intl.formatMessage(addonMessages.altTextIsAIGenerated)})`;
   }
 
   return altText;
@@ -46,19 +50,23 @@ export const getAltTextFromBlock = (data: ImageBlockData): string => {
  * If the alternative text is generated using AI, this will append the
  * model used for generation, as well as the generation date.
  */
-export const getAltTextFromObject = (data: ImageObjectData): string => {
+export const getAltTextFromObject = (data: ImageObjectData, intl): string => {
   if (!data?.alt_text) return '';
 
   let altText = data.alt_text;
 
-  if (data.alt_text_ai_generated && data.alt_text_model_used) {
-    const altTextMetadata = [data.alt_text_model_used];
+  if (data.alt_text_ai_generated) {
+    const altTextMetadata = [];
+
+    if (data.alt_text_model_used) {
+      altTextMetadata.push(data.alt_text_model_used);
+    }
 
     if (data.alt_text_generation_date) {
       altTextMetadata.push(data.alt_text_generation_date);
     }
 
-    altText += ` (${altTextMetadata.join(', ')})`;
+    altText += ` (${altTextMetadata.length > 0 ? altTextMetadata.join(', ') : intl.formatMessage(addonMessages.altTextIsAIGenerated)})`;
   }
 
   return altText;

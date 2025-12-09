@@ -302,7 +302,7 @@ class Edit extends Component {
                   })()
                 : data.url
             }
-            alt={getAltTextFromBlock(data)}
+            alt={getAltTextFromBlock(data, this.props.intl)}
           />
         ) : (
           <div>
