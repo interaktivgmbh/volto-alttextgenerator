@@ -18,7 +18,9 @@ import { getAltTextFromBlock } from 'volto-interaktiv-alttextgenerator/helpers';
  * @class View
  * @extends Component
  */
-export const View = ({ data, detached, className }) => {
+// INTERAKTIV START
+export const View = ({ data, detached, className, intl }) => {
+  // END
   const href = data?.href?.[0]?.['@id'] || '';
 
   return (
@@ -63,7 +65,7 @@ export const View = ({ data, detached, className }) => {
                     : data.url
                 }
                 // INTERAKTIV START
-                alt={getAltTextFromBlock(data)}
+                alt={getAltTextFromBlock(data, intl)}
                 // END
                 loading="lazy"
               />

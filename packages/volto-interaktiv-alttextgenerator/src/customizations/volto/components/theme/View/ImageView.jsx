@@ -11,6 +11,7 @@ import prettybytes from 'pretty-bytes';
 import { flattenToAppURL } from '@plone/volto/helpers';
 import config from '@plone/volto/registry';
 // INTERAKTIV START
+import { useIntl } from 'react-intl';
 import { getAltTextFromObject } from 'volto-interaktiv-alttextgenerator/helpers';
 // END
 
@@ -21,6 +22,9 @@ import { getAltTextFromObject } from 'volto-interaktiv-alttextgenerator/helpers'
  * @returns {string} Markup of the component.
  */
 const ImageView = ({ content }) => {
+  // INTERAKTIV START
+  const intl = useIntl();
+  // END
   const Container =
     config.getComponent({ name: 'Container' }).component || SemanticContainer;
 
@@ -37,7 +41,7 @@ const ImageView = ({ content }) => {
         <a href={flattenToAppURL(content.image.download)}>
           <img
             // INTERAKTIV START
-            alt={getAltTextFromObject(content)}
+            alt={getAltTextFromObject(content, intl)}
             // END
             src={flattenToAppURL(content.image.scales.preview.download)}
           />
