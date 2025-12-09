@@ -9,7 +9,7 @@ import type {
   ImageObjectData,
   ImageContext,
   ErrorResponse,
-  Message
+  Message,
 } from 'volto-interaktiv-alttextgenerator/types';
 import addonMessages from 'volto-interaktiv-alttextgenerator/messages';
 
@@ -34,7 +34,7 @@ export const getAltTextFromBlock = (data: ImageBlockData): string => {
   }
 
   return altText;
-}
+};
 
 /**
  * Constructs the alternative text for an image from its object data.
@@ -58,53 +58,35 @@ export const getAltTextFromObject = (data: ImageObjectData): string => {
   }
 
   return altText;
-}
+};
 
 const getErrorMessage = (status: number): Message => {
-  switch(status) {
+  switch (status) {
     case 406:
-      return addonMessages.altTextGenUnsupported
+      return addonMessages.altTextGenUnsupported;
     case 409:
-      return addonMessages.altTextGenNotAllowed
+      return addonMessages.altTextGenNotAllowed;
     default:
-      return addonMessages.altTextGenErrorLabel
+      return addonMessages.altTextGenErrorLabel;
   }
-}
+};
 
 export const showInfoToast = (title: string, content: string): void => {
-  toast.info(
-    <Toast
-      info
-      title={title}
-      content={content}
-    />,
-  )
-}
+  toast.info(<Toast info title={title} content={content} />);
+};
 
 export const showErrorToast = (title: string, content: string): void => {
-  toast.error(
-    <Toast
-      error
-      title={title}
-      content={content}
-    />,
-  )
-}
+  toast.error(<Toast error title={title} content={content} />);
+};
 
 export const showSuccessToast = (title: string, content: string): void => {
-  toast.success(
-    <Toast
-      success
-      title={title}
-      content={content}
-    />,
-  )
-}
+  toast.success(<Toast success title={title} content={content} />);
+};
 
 const onSuccess = (
   context: ImageContext,
   res: ImageObjectData,
-  silent: boolean
+  silent: boolean,
 ): void => {
   context.props.onChangeBlock(context.props.block, {
     ...context.props.data,
@@ -118,14 +100,14 @@ const onSuccess = (
     showSuccessToast(
       context.props.intl.formatMessage(addonMessages.altTextGenSuccessTitle),
       context.props.intl.formatMessage(addonMessages.altTextGenSuccessLabel),
-    )
+    );
   }
-}
+};
 
 const onError = (
   context: ImageContext,
   res: ErrorResponse,
-  silent: boolean
+  silent: boolean,
 ): void => {
   const errorMessage = getErrorMessage(res.status);
 
@@ -133,9 +115,9 @@ const onError = (
     showErrorToast(
       context.props.intl.formatMessage(addonMessages.altTextGenErrorTitle),
       context.props.intl.formatMessage(errorMessage),
-    )
+    );
   }
-}
+};
 
 /**
  * Post-upload handler that will generate an alternative text for the image.
@@ -144,7 +126,7 @@ const onError = (
 export const postUploadHandler = (
   context: ImageContext,
   res: ImageObjectData,
-  silent: boolean = false
+  silent: boolean = false,
 ): void => {
   const contentUrl: string = flattenToAppURL(res['@id']);
 
@@ -155,7 +137,8 @@ export const postUploadHandler = (
     );
   }
 
-  context.props.updateAltTextSuggestion(contentUrl)
+  context.props
+    .updateAltTextSuggestion(contentUrl)
     .then((data: ImageObjectData) => onSuccess(context, data, silent))
     .catch((err: ErrorResponse) => onError(context, err, silent));
-}
+};

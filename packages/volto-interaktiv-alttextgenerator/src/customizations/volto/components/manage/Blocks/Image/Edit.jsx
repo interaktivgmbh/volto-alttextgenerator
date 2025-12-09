@@ -34,7 +34,10 @@ import clearSVG from '@plone/volto/icons/clear.svg';
 import navTreeSVG from '@plone/volto/icons/nav.svg';
 import aheadSVG from '@plone/volto/icons/ahead.svg';
 import uploadSVG from '@plone/volto/icons/upload.svg';
-import { getAltTextFromBlock, postUploadHandler } from 'volto-interaktiv-alttextgenerator/helpers';
+import {
+  getAltTextFromBlock,
+  postUploadHandler,
+} from 'volto-interaktiv-alttextgenerator/helpers';
 
 const Dropzone = loadable(() => import('react-dropzone'));
 
@@ -145,21 +148,23 @@ class Edit extends Component {
     });
     readAsDataURL(file).then((data) => {
       const fields = data.match(/^data:(.*);(.*),(.*)$/);
-      this.props.createContent(
-        getBaseUrl(this.props.pathname),
-        {
-          '@type': 'Image',
-          title: file.name,
-          image: {
-            data: fields[3],
-            encoding: fields[2],
-            'content-type': fields[1],
-            filename: file.name,
+      this.props
+        .createContent(
+          getBaseUrl(this.props.pathname),
+          {
+            '@type': 'Image',
+            title: file.name,
+            image: {
+              data: fields[3],
+              encoding: fields[2],
+              'content-type': fields[1],
+              filename: file.name,
+            },
           },
-        },
-        this.props.block,
-        // INTERAKTIV START
-      ).then((res) => postUploadHandler(this, res));
+          this.props.block,
+          // INTERAKTIV START
+        )
+        .then((res) => postUploadHandler(this, res));
       // END
     });
   };
@@ -204,21 +209,23 @@ class Edit extends Component {
 
     readAsDataURL(files[0]).then((data) => {
       const fields = data.match(/^data:(.*);(.*),(.*)$/);
-      this.props.createContent(
-        getBaseUrl(this.props.pathname),
-        {
-          '@type': 'Image',
-          title: files[0].name,
-          image: {
-            data: fields[3],
-            encoding: fields[2],
-            'content-type': fields[1],
-            filename: files[0].name,
+      this.props
+        .createContent(
+          getBaseUrl(this.props.pathname),
+          {
+            '@type': 'Image',
+            title: files[0].name,
+            image: {
+              data: fields[3],
+              encoding: fields[2],
+              'content-type': fields[1],
+              filename: files[0].name,
+            },
           },
-        },
-        this.props.block,
-        // INTERAKTIV START
-      ).then((res) => postUploadHandler(this, res));
+          this.props.block,
+          // INTERAKTIV START
+        )
+        .then((res) => postUploadHandler(this, res));
       // END
     });
   };
@@ -282,17 +289,17 @@ class Edit extends Component {
             src={
               isInternalURL(data.url)
                 ? // Backwards compat in the case that the block is storing the full server URL
-                (() => {
-                  if (data.size === 'l')
+                  (() => {
+                    if (data.size === 'l')
+                      return `${flattenToAppURL(data.url)}/@@images/image`;
+                    if (data.size === 'm')
+                      return `${flattenToAppURL(
+                        data.url,
+                      )}/@@images/image/preview`;
+                    if (data.size === 's')
+                      return `${flattenToAppURL(data.url)}/@@images/image/mini`;
                     return `${flattenToAppURL(data.url)}/@@images/image`;
-                  if (data.size === 'm')
-                    return `${flattenToAppURL(
-                      data.url,
-                    )}/@@images/image/preview`;
-                  if (data.size === 's')
-                    return `${flattenToAppURL(data.url)}/@@images/image/mini`;
-                  return `${flattenToAppURL(data.url)}/@@images/image`;
-                })()
+                  })()
                 : data.url
             }
             alt={getAltTextFromBlock(data)}
@@ -334,22 +341,24 @@ class Edit extends Component {
                                   // INTERAKTIV START
                                   mode: 'image',
                                   onSelectItem: (url, item) => {
-                                    const aiGenerated = item.alt_text_ai_generated;
+                                    const aiGenerated =
+                                      item.alt_text_ai_generated;
 
                                     const additionalData = aiGenerated
                                       ? {
-                                        model_used: item.alt_text_model_used,
-                                        generation_date: item.alt_text_generation_date,
-                                      } : {};
+                                          model_used: item.alt_text_model_used,
+                                          generation_date:
+                                            item.alt_text_generation_date,
+                                        }
+                                      : {};
 
-                                    this.props.onChangeBlock(
-                                      this.props.block, {
-                                        ...this.props.data,
-                                        alt: item.alt_text ?? '',
-                                        alt_ai_generated: aiGenerated,
-                                        ...additionalData,
-                                        url,
-                                      });
+                                    this.props.onChangeBlock(this.props.block, {
+                                      ...this.props.data,
+                                      alt: item.alt_text ?? '',
+                                      alt_ai_generated: aiGenerated,
+                                      ...additionalData,
+                                      url,
+                                    });
                                   },
                                   // END
                                 });

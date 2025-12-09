@@ -221,24 +221,26 @@ class Add extends Component {
    * @returns {undefined}
    */
   onSubmit(data) {
-    this.props.createContent(getBaseUrl(this.props.pathname), {
-      ...data,
-      '@static_behaviors': this.props.schema.definitions
-        ? keys(this.props.schema.definitions)
-        : null,
-      '@type': this.props.type,
-      ...(config.settings.isMultilingual &&
-        this.props.location?.state?.translationOf && {
-          translation_of: this.props.location.state.translationOf,
-          language: this.props.location.state.language,
-        }),
-      // INTERAKTIV START
-    }).then((res) => {
-      if (res['@type'] === 'Image') {
-        // update image alt text silently
-        postUploadHandler(this, res, true);
-      }
-    });
+    this.props
+      .createContent(getBaseUrl(this.props.pathname), {
+        ...data,
+        '@static_behaviors': this.props.schema.definitions
+          ? keys(this.props.schema.definitions)
+          : null,
+        '@type': this.props.type,
+        ...(config.settings.isMultilingual &&
+          this.props.location?.state?.translationOf && {
+            translation_of: this.props.location.state.translationOf,
+            language: this.props.location.state.language,
+          }),
+        // INTERAKTIV START
+      })
+      .then((res) => {
+        if (res['@type'] === 'Image') {
+          // update image alt text silently
+          postUploadHandler(this, res, true);
+        }
+      });
     // END
   }
 
@@ -501,7 +503,7 @@ export default compose(
       getSchema,
       changeLanguage,
       // INTERAKTIV START
-      updateAltTextSuggestion
+      updateAltTextSuggestion,
       // END
     },
   ),

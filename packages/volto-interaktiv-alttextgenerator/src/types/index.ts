@@ -6,14 +6,16 @@ export interface ActionRequest<ActionRequestData extends object = object> {
 
 export interface Action<Request extends object = object> {
   type: string;
-  request: ActionRequest<Request>
+  request: ActionRequest<Request>;
 }
 
 export interface AltTextSuggestionActionRequestData {
   path: string;
 }
 
-export type AltTextSuggestionAction = Action<AltTextSuggestionActionRequestData>;
+export type AltTextSuggestionAction = Action<
+  AltTextSuggestionActionRequestData
+>;
 
 export interface ImageContextProps {
   onChangeBlock: Function;
@@ -40,7 +42,7 @@ export interface ImageBlockData {
 }
 
 export interface ImageObjectData {
-  "@id": string;
+  '@id': string;
   alt_text?: string;
   alt_text_ai_generated: boolean;
   alt_text_model_used?: string;

@@ -52,10 +52,11 @@ export function ImageSchema({ formData, intl }) {
       {
         id: 'default',
         title: 'Default',
-        fields: [...(formData.url ?
-          ['url', 'alt', 'alt_ai_generated', 'align', 'size']
-          : []
-        )],
+        fields: [
+          ...(formData.url
+            ? ['url', 'alt', 'alt_ai_generated', 'align', 'size']
+            : []),
+        ],
       },
       ...(formData.url
         ? [

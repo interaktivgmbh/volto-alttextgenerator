@@ -8,6 +8,6 @@ export function updateAltTextSuggestion(path: string): AltTextSuggestionAction {
       op: 'patch',
       path: `${path}/@alt_text_suggestion`,
       data: { path },
-    }
+    },
   };
 }
