@@ -10,8 +10,12 @@ import type {
   ImageContext,
   ErrorResponse,
   Message,
+  ImageContextProps,
+  FunctionalImageContextProps,
+  ObjectBrowserOptions,
 } from 'volto-interaktiv-alttextgenerator/types';
 import addonMessages from 'volto-interaktiv-alttextgenerator/messages';
+import { updateAltTextSuggestion } from 'volto-interaktiv-alttextgenerator/actions/alttexts/alttexts';
 
 /**
  * Constructs the alternative text for an image from its block data.
@@ -121,7 +125,6 @@ const onError = (
 
 /**
  * Post-upload handler that will generate an alternative text for the image.
- * @returns {undefined}
  */
 export const postUploadHandler = (
   context: ImageContext,
@@ -141,4 +144,48 @@ export const postUploadHandler = (
     .updateAltTextSuggestion(contentUrl)
     .then((data: ImageObjectData) => onSuccess(context, data, silent))
     .catch((err: ErrorResponse) => onError(context, err, silent));
+};
+
+/**
+ * Constructs a context for functional components to be used in the postUploadHandler.
+ */
+export const constructContext = (
+  props: FunctionalImageContextProps,
+  dispatch: Function,
+  intl: any,
+): ImageContext => {
+  const contextProps: ImageContextProps = {
+    ...props,
+    updateAltTextSuggestion: (path: string): Promise<ImageObjectData> =>
+      dispatch(updateAltTextSuggestion(path)),
+    intl,
+  };
+
+  return { props: contextProps };
+};
+
+export const getObjectBrowserOptions = (
+  props: FunctionalImageContextProps,
+): ObjectBrowserOptions => {
+  return {
+    mode: 'image',
+    onSelectItem: (url: string, item: ImageObjectData) => {
+      const aiGenerated = item.alt_text_ai_generated;
+
+      const additionalData = aiGenerated
+        ? {
+            model_used: item.alt_text_model_used,
+            generation_date: item.alt_text_generation_date,
+          }
+        : {};
+
+      props.onChangeBlock(props.block, {
+        ...props.data,
+        alt: item.alt_text ?? '',
+        alt_ai_generated: aiGenerated,
+        ...additionalData,
+        url,
+      });
+    },
+  };
 };

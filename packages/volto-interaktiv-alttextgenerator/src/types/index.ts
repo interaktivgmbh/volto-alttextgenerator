@@ -17,18 +17,6 @@ export type AltTextSuggestionAction = Action<
   AltTextSuggestionActionRequestData
 >;
 
-export interface ImageContextProps {
-  onChangeBlock: Function;
-  updateAltTextSuggestion: Function;
-  block: object;
-  data: object;
-  intl: any;
-}
-
-export interface ImageContext {
-  props: ImageContextProps;
-}
-
 export interface Message {
   id: string;
   defaultMessage: string;
@@ -54,3 +42,26 @@ export interface ErrorResponse {
 }
 
 export type Messages = Record<string, Message>;
+
+export interface ImageBlockProps {
+  block: object;
+  data: ImageBlockData;
+}
+
+export interface FunctionalImageContextProps extends ImageBlockProps {
+  onChangeBlock: Function;
+}
+
+export interface ImageContextProps extends FunctionalImageContextProps {
+  updateAltTextSuggestion: Function;
+  intl: any;
+}
+
+export interface ImageContext {
+  props: ImageContextProps;
+}
+
+export interface ObjectBrowserOptions {
+  mode: string;
+  onSelectItem: Function;
+}
