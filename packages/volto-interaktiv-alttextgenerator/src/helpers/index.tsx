@@ -38,7 +38,11 @@ export const getAltTextFromBlock = (data: ImageBlockData, intl): string => {
       altTextMetadata.push(data.generation_date);
     }
 
-    altText += ` (${altTextMetadata.length > 0 ? altTextMetadata.join(', ') : intl.formatMessage(addonMessages.altTextIsAIGenerated)})`;
+    altText += ` (${
+      altTextMetadata.length > 0
+        ? altTextMetadata.join(', ')
+        : intl.formatMessage(addonMessages.altTextIsAIGenerated)
+    })`;
   }
 
   return altText;
@@ -66,7 +70,11 @@ export const getAltTextFromObject = (data: ImageObjectData, intl): string => {
       altTextMetadata.push(data.alt_text_generation_date);
     }
 
-    altText += ` (${altTextMetadata.length > 0 ? altTextMetadata.join(', ') : intl.formatMessage(addonMessages.altTextIsAIGenerated)})`;
+    altText += ` (${
+      altTextMetadata.length > 0
+        ? altTextMetadata.join(', ')
+        : intl.formatMessage(addonMessages.altTextIsAIGenerated)
+    })`;
   }
 
   return altText;
