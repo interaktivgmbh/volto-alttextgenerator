@@ -33,7 +33,6 @@
     "storybook-build": "VOLTOCONFIG=$(pwd)/volto.config.js pnpm --filter @plone/volto build-storybook -c $(pwd)/.storybook"
   },
   "dependencies": {
-    "@plone/volto": "workspace:*",
     "volto-interaktiv-alttextgenerator": "workspace:*"
   },
   "devDependencies": {
