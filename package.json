@@ -1,15 +1,17 @@
 {
-  "name": "volto-interaktiv-alttextgenerator-dev",
-  "version": "1.0.0-alpha.0",
+  "name": "@interaktivgmbh/volto-alttextgenerator-dev",
+  "version": "1.0.0",
   "description": "The Volto add-on for interaktiv.alttextgenerator",
   "author": "Interaktiv GmbH",
-  "homepage": "https://github.com/interaktivgmbh/volto-interaktiv-alttextgenerator",
+  "homepage": "https://github.com/interaktivgmbh/volto-alttextgenerator",
   "license": "MIT",
   "keywords": [
     "volto-addon",
     "volto",
     "plone",
-    "react"
+    "react",
+    "accessibility",
+    "ai"
   ],
   "scripts": {
     "preinstall": "npx only-allow pnpm",
@@ -17,7 +19,7 @@
     "start:prod": "pnpm --filter @plone/volto start:prod",
     "build": "VOLTOCONFIG=$(pwd)/volto.config.js pnpm --filter @plone/volto build",
     "build:deps": "pnpm --filter @plone/registry --filter @plone/components build",
-    "i18n": "pnpm --filter volto-interaktiv-alttextgenerator i18n && VOLTOCONFIG=$(pwd)/volto.config.js pnpm --filter @plone/volto i18n",
+    "i18n": "pnpm --filter @interaktivgmbh/volto-alttextgenerator i18n && VOLTOCONFIG=$(pwd)/volto.config.js pnpm --filter @plone/volto i18n",
     "test": "RAZZLE_JEST_CONFIG=$(pwd)/jest-addon.config.js pnpm --filter @plone/volto test -- --passWithNoTests",
     "lint": "VOLTOCONFIG=$(pwd)/volto.config.js eslint --max-warnings=0 'packages/**/src/**/*.{js,jsx,ts,tsx}'",
     "lint:fix": "VOLTOCONFIG=$(pwd)/volto.config.js eslint --fix 'packages/**/src/**/*.{js,jsx,ts,tsx}'",
@@ -25,15 +27,15 @@
     "prettier:fix": "prettier --write 'packages/**/src/**/*.{js,jsx,ts,tsx}' ",
     "stylelint": "stylelint 'packages/**/src/**/*.{css,scss,less}' --allow-empty-input",
     "stylelint:fix": "stylelint 'packages/**/src/**/*.{css,scss,less}' --fix --allow-empty-input",
-    "dry-release": "pnpm --filter volto-interaktiv-alttextgenerator dry-release",
-    "release": "pnpm --filter volto-interaktiv-alttextgenerator release",
-    "release-major-alpha": "pnpm --filter volto-interaktiv-alttextgenerator release-major-alpha",
-    "release-alpha": "pnpm --filter volto-interaktiv-alttextgenerator release-alpha",
+    "dry-release": "pnpm --filter @interaktivgmbh/volto-alttextgenerator dry-release",
+    "release": "pnpm --filter @interaktivgmbh/volto-alttextgenerator release",
+    "release-major-alpha": "pnpm --filter @interaktivgmbh/volto-alttextgenerator release-major-alpha",
+    "release-alpha": "pnpm --filter @interaktivgmbh/volto-alttextgenerator release-alpha",
     "storybook": "VOLTOCONFIG=$(pwd)/volto.config.js pnpm --filter @plone/volto storybook dev -p 6006 -c $(pwd)/.storybook",
     "storybook-build": "VOLTOCONFIG=$(pwd)/volto.config.js pnpm --filter @plone/volto build-storybook -c $(pwd)/.storybook"
   },
   "dependencies": {
-    "volto-interaktiv-alttextgenerator": "workspace:*"
+    "@interaktivgmbh/volto-alttextgenerator": "workspace:*"
   },
   "devDependencies": {
     "mrs-developer": "^2.2.0"

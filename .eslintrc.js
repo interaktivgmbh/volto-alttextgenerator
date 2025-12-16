@@ -29,8 +29,8 @@ module.exports = {
           ['@plone/volto-slate', `${coreLocation}/packages/volto-slate/src`],
           ['@plone/registry', `${coreLocation}/packages/registry/src`],
           [
-            'volto-interaktiv-alttextgenerator',
-            './packages/volto-interaktiv-alttextgenerator/src',
+            '@interaktivgmbh/volto-alttextgenerator',
+            './packages/@interaktivgmbh/volto-alttextgenerator/src',
           ],
           ...addonAliases,
         ],

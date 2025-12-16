@@ -26,7 +26,7 @@ DOCKER_IMAGE=plone/server-dev:${PLONE_VERSION}
 DOCKER_IMAGE_ACCEPTANCE=plone/server-acceptance:${PLONE_VERSION}
 API_PATH ?= http://127.0.0.1:55001/plone
 
-ADDON_NAME='volto-interaktiv-alttextgenerator'
+ADDON_NAME='@interaktivgmbh/volto-alttextgenerator'
 
 .PHONY: help
 help: ## Show this help
