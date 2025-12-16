@@ -1,7 +1,9 @@
 import React from 'react';
 import { toast } from 'react-toastify';
 
+// @ts-ignore
 import { flattenToAppURL } from '@plone/volto/helpers';
+// @ts-ignore
 import Toast from '@plone/volto/components/manage/Toast/Toast';
 
 import type {
@@ -54,7 +56,7 @@ export const getAltTextFromBlock = (data: ImageBlockData, intl): string => {
  * If the alternative text is generated using AI, this will append the
  * model used for generation, as well as the generation date.
  */
-export const getAltTextFromObject = (data: ImageObjectData, intl): string => {
+export const getAltTextFromObject = (data: ImageObjectData, intl: any): string => {
   if (!data?.alt_text) return '';
 
   let altText = data.alt_text;
