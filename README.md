@@ -20,6 +20,12 @@ model and generation date. If you edit the alt text in the image block sidebar,
 the checkbox is automatically unchecked, so it is clear the text was changed by
 hand.
 
+## Before you continue
+
+Please refer to the documentation of [interaktiv.alttextgenerator](https://github.com/interaktivgmbh/interaktiv.alttextgenerator#readme).
+You will find more details on what the addon does, whereas this documentation
+goes more in depth on how to extend your own addon using the provided helpers.
+
 ## Extending your own addon
 
 Use the `updateAltTextSuggestion` action to generate an alt text for an image
