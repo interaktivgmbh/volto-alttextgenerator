@@ -2,30 +2,121 @@
 
 [![Code analysis checks](https://github.com/interaktivgmbh/volto-alttextgenerator/actions/workflows/code.yml/badge.svg)](https://github.com/interaktivgmbh/volto-alttextgenerator/actions/workflows/code.yml)
 
-The Volto add-on for interaktiv.alttextgenerator
+Generate alt texts with AI. This Volto addon complements
+[interaktiv.alttextgenerator](https://github.com/interaktivgmbh/interaktiv.alttextgenerator).
 
 ## Features
 
 This addon extends the features of [@interaktivgmbh/volto-alttexts](https://github.com/interaktivgmbh/volto-alttexts).
 
-When you upload an image—whether as an image content type or inside an image
-block—a separate request is triggered to generate an AI-based alt text
-suggestion. The process is visually indicated with toasts that notify you when
-generation starts and when it completes successfully.
+When you upload an image, either as a content type or inside an image block, the
+addon triggers a request to generate an AI-based alt text suggestion. Toasts
+show when generation starts and when it completes. For image content types, the
+generated alt text is written directly into the alt text field. For image
+blocks, the block alt text is updated with the new suggestion. A checkbox is
+used to mark alt texts as AI-generated. This checkbox is automatically checked
+when generation succeeds. Checking this box appends metadata such as the
+model and generation date. If you edit the alt text in the image block sidebar,
+the checkbox is automatically unchecked, so it is clear the text was changed by
+hand.
 
-For image content types, the generated alt text is automatically inserted into
-the alt text field.
+## Extending your own addon
 
-For images inside an image block, the alt text is also updated with the newly
-generated suggestion.
+Use the `updateAltTextSuggestion` action to generate an alt text for an image
+given its path.
 
-A checkbox allows you to mark the alt text as AI-generated, and it is checked
-by default. When enabled, additional metadata—such as the model used and the
-date of generation—is appended to the alt text.
+```js
+import { useDispatch } from 'react-redux';
+import { updateAltTextSuggestion } from '@interaktivgmbh/volto-alttextgenerator/actions/alttexts/alttexts';
 
-If you manually modify the alt text in the image block sidebar, the checkbox is
-automatically unchecked, indicating that the text is no longer considered
-AI-generated.
+const dispatch = useDispatch();
+const path = '/path/to/image.jpg';
+
+dispatch(updateAltTextSuggestion(path))
+```
+
+### Run after upload (class components)
+
+Use the `postUploadHandler` helper to trigger generation after `createContent`
+resolves. The handler requires the class context and the upload response.
+
+```js
+import { postUploadHandler } from '@interaktivgmbh/volto-alttextgenerator/helpers';
+import { updateAltTextSuggestion } from '@interaktivgmbh/volto-alttextgenerator/actions/alttexts/alttexts';
+
+this.props.createContent(...).then((res) => postUploadHandler(this, res));
+
+export default compose(
+  injectIntl,
+  connect(
+    () => {},
+    { createContent, updateAltTextSuggestion },
+  ),
+)(MyComponent);
+```
+
+This helper is designed for class components. For this to work, you need to
+compose the component as shown in the example. Even if the `updateAltTextSuggestion`
+is not used directly inside your component, it has to be inside the context props
+for the `postUploadHandler`. The same is true for intl, which is why you need to
+`injectIntl`.
+
+### Run after upload (functional components)
+
+Functional components can use `constructContext` to build the context object the
+upload handler expects.
+
+```js
+import { useDispatch } from 'react-redux';
+import { useIntl } from 'react-intl';
+import {
+  constructContext,
+  postUploadHandler,
+} from '@interaktivgmbh/volto-alttextgenerator/helpers';
+
+const MyComponent = (props) => {
+  const dispatch = useDispatch();
+  const intl = useIntl();
+
+  const context = constructContext(props, dispatch, intl);
+
+  createContent(...).then((res) => postUploadHandler(context, res));
+};
+```
+
+This will call the `@alt_text_suggestion` service to modify the image and return
+the serialized image object, including the generated alt text and generation
+metadata.
+
+You can then either add this data to your block, or use the serialized data
+directly.
+
+You may access the alt_text directly, but that would leave out the metadata.
+To construct the alt text with its metadata from the serialized image data,
+there are two helper functions:
+
+* `getAltTextFromObject(data, intl)` - Construct the alt text (with metadata)
+  from the serialized image object returned by the backend.
+* `getAltTextFromBlock(data, intl)` - Construct the alt text (with metadata)
+  from block data where the alt text is stored as `alt`.
+
+For the exact names of the input data fields, refer to the type definitions.
+Both helper functions require intl, so they can display a fallback
+message in the correct language when there is no generation metadata. This could
+be the case for alt texts that are not generated by this addon, but by the user.
+That way, you still have the possibility to generate your own alt texts and mark
+them as AI generated.
+
+### Handling block data
+
+Use the `getObjectBrowserOptions` helper to handle filling the block data when
+selecting an image using the object browser.
+
+```js
+import { getObjectBrowserOptions } from '@interaktivgmbh/volto-alttextgenerator/helpers';
+
+this.props.openObjectBrowser(getObjectBrowserOptions(this.props));
+```
 
 ## Installation
 
