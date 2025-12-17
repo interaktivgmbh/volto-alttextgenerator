@@ -1,4 +1,4 @@
-const addons = ['volto-interaktiv-alttextgenerator'];
+const addons = ['@interaktivgmbh/volto-alttextgenerator'];
 const theme = '';
 
 module.exports = {

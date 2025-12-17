@@ -2,13 +2,9 @@ const fs = require('fs');
 const projectRootPath = __dirname;
 const { AddonRegistry } = require('@plone/registry/addon-registry');
 
-let coreLocation;
-if (fs.existsSync(`${projectRootPath}/core`))
-  coreLocation = `${projectRootPath}/core`;
-else if (fs.existsSync(`${projectRootPath}/../../core`))
-  coreLocation = `${projectRootPath}/../../core`;
+const nodeModulesLocation = `${projectRootPath}/packages/@interaktivgmbh/volto-alttextgenerator/node_modules`;
 
-const { registry } = AddonRegistry.init(`${coreLocation}/packages/volto`);
+const { registry } = AddonRegistry.init(`${nodeModulesLocation}/@plone/volto`);
 
 // Extends ESlint configuration for adding the aliases to `src` directories in Volto addons
 const addonAliases = Object.keys(registry.packages).map((o) => [
@@ -17,20 +13,33 @@ const addonAliases = Object.keys(registry.packages).map((o) => [
 ]);
 
 module.exports = {
-  extends: `${coreLocation}/packages/volto/.eslintrc`,
+  ignorePatterns: ['node_modules/'],
+  extends: `${nodeModulesLocation}/@plone/volto/.eslintrc`,
   rules: {
     'import/no-unresolved': 1,
   },
+  overrides: [
+    {
+      files: ['**/*.ts', '**/*.tsx'],
+      parser: '@typescript-eslint/parser',
+      parserOptions: {
+        ecmaVersion: 2020,
+        sourceType: 'module',
+        project: false,
+      },
+      plugins: ['@typescript-eslint'],
+    },
+  ],
   settings: {
     'import/resolver': {
       alias: {
         map: [
-          ['@plone/volto', `${coreLocation}/packages/volto/src`],
-          ['@plone/volto-slate', `${coreLocation}/packages/volto-slate/src`],
-          ['@plone/registry', `${coreLocation}/packages/registry/src`],
+          ['@plone/volto', `${nodeModulesLocation}/@plone/volto/src`],
+          ['@plone/volto-slate', `${nodeModulesLocation}/@plone/volto-slate/src`],
+          ['@plone/registry', `${nodeModulesLocation}/@plone/registry/src`],
           [
-            'volto-interaktiv-alttextgenerator',
-            './packages/volto-interaktiv-alttextgenerator/src',
+            '@interaktivgmbh/volto-alttextgenerator',
+            './packages/@interaktivgmbh/volto-alttextgenerator/src',
           ],
           ...addonAliases,
         ],

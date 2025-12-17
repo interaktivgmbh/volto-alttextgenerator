@@ -7,7 +7,7 @@ on:
 
 env:
   NODE_VERSION: 24
-  ADDON_NAME: volto-interaktiv-alttextgenerator
+  ADDON_NAME: @interaktivgmbh/volto-alttextgenerator
 
 jobs:
   build:

@@ -1,221 +1,152 @@
-# Interaktiv Alt Text Generator (volto-interaktiv-alttextgenerator)
+# Interaktiv Alt Text Generator
 
-The Volto add-on for interaktiv.alttextgenerator
+[![Code analysis checks](https://github.com/interaktivgmbh/volto-alttextgenerator/actions/workflows/code.yml/badge.svg)](https://github.com/interaktivgmbh/volto-alttextgenerator/actions/workflows/code.yml)
 
-[![npm](https://img.shields.io/npm/v/volto-interaktiv-alttextgenerator)](https://www.npmjs.com/package/volto-interaktiv-alttextgenerator)
-[![](https://img.shields.io/badge/-Storybook-ff4785?logo=Storybook&logoColor=white&style=flat-square)](https://interaktivgmbh.github.io/volto-interaktiv-alttextgenerator/)
-[![Code analysis checks](https://github.com/interaktivgmbh/volto-interaktiv-alttextgenerator/actions/workflows/code.yml/badge.svg)](https://github.com/interaktivgmbh/volto-interaktiv-alttextgenerator/actions/workflows/code.yml)
-[![Unit tests](https://github.com/interaktivgmbh/volto-interaktiv-alttextgenerator/actions/workflows/unit.yml/badge.svg)](https://github.com/interaktivgmbh/volto-interaktiv-alttextgenerator/actions/workflows/unit.yml)
+Generate alt texts with AI. This Volto addon complements
+[interaktiv.alttextgenerator](https://github.com/interaktivgmbh/interaktiv.alttextgenerator).
 
 ## Features
 
-<!-- List your awesome features here -->
+This addon extends the features of [@interaktivgmbh/volto-alttexts](https://github.com/interaktivgmbh/volto-alttexts).
+
+When you upload an image, either as a content type or inside an image block, the
+addon triggers a request to generate an AI-based alt text suggestion. Toasts
+show when generation starts and when it completes. For image content types, the
+generated alt text is written directly into the alt text field. For image
+blocks, the block alt text is updated with the new suggestion. A checkbox is
+used to mark alt texts as AI-generated. This checkbox is automatically checked
+when generation succeeds. Checking this box appends metadata such as the
+model and generation date. If you edit the alt text in the image block sidebar,
+the checkbox is automatically unchecked, so it is clear the text was changed by
+hand.
+
+## Before you continue
+
+Please refer to the documentation of [interaktiv.alttextgenerator](https://github.com/interaktivgmbh/interaktiv.alttextgenerator#readme).
+You will find more details on what the addon does, whereas this documentation
+goes more in depth on how to extend your own addon using the provided helpers.
+
+## Extending your own addon
+
+Use the `updateAltTextSuggestion` action to generate an alt text for an image
+given its path.
+
+```js
+import { useDispatch } from 'react-redux';
+import { updateAltTextSuggestion } from '@interaktivgmbh/volto-alttextgenerator/actions/alttexts/alttexts';
+
+const dispatch = useDispatch();
+const path = '/path/to/image.jpg';
+
+dispatch(updateAltTextSuggestion(path))
+```
+
+### Run after upload (class components)
+
+Use the `postUploadHandler` helper to trigger generation after `createContent`
+resolves. The handler requires the class context and the upload response.
+
+```js
+import { postUploadHandler } from '@interaktivgmbh/volto-alttextgenerator/helpers';
+import { updateAltTextSuggestion } from '@interaktivgmbh/volto-alttextgenerator/actions/alttexts/alttexts';
+
+this.props.createContent(...).then((res) => postUploadHandler(this, res));
+
+export default compose(
+  injectIntl,
+  connect(
+    () => {},
+    { createContent, updateAltTextSuggestion },
+  ),
+)(MyComponent);
+```
+
+This helper is designed for class components. For this to work, you need to
+compose the component as shown in the example. Even if the `updateAltTextSuggestion`
+is not used directly inside your component, it has to be inside the context props
+for the `postUploadHandler`. The same is true for intl, which is why you need to
+`injectIntl`.
+
+### Run after upload (functional components)
+
+Functional components can use `constructContext` to build the context object the
+upload handler expects.
+
+```js
+import { useDispatch } from 'react-redux';
+import { useIntl } from 'react-intl';
+import {
+  constructContext,
+  postUploadHandler,
+} from '@interaktivgmbh/volto-alttextgenerator/helpers';
+
+const MyComponent = (props) => {
+  const dispatch = useDispatch();
+  const intl = useIntl();
+
+  const context = constructContext(props, dispatch, intl);
+
+  createContent(...).then((res) => postUploadHandler(context, res));
+};
+```
+
+This will call the `@alt_text_suggestion` service to modify the image and return
+the serialized image object, including the generated alt text and generation
+metadata.
+
+You can then either add this data to your block, or use the serialized data
+directly.
+
+You may access the alt_text directly, but that would leave out the metadata.
+To construct the alt text with its metadata from the serialized image data,
+there are two helper functions:
+
+* `getAltTextFromObject(data, intl)` - Construct the alt text (with metadata)
+  from the serialized image object returned by the backend.
+* `getAltTextFromBlock(data, intl)` - Construct the alt text (with metadata)
+  from block data where the alt text is stored as `alt`.
+
+For the exact names of the input data fields, refer to the type definitions.
+Both helper functions require intl, so they can display a fallback
+message in the correct language when there is no generation metadata. This could
+be the case for alt texts that are not generated by this addon, but by the user.
+That way, you still have the possibility to generate your own alt texts and mark
+them as AI generated.
+
+### Handling block data
+
+Use the `getObjectBrowserOptions` helper to handle filling the block data when
+selecting an image using the object browser.
+
+```js
+import { getObjectBrowserOptions } from '@interaktivgmbh/volto-alttextgenerator/helpers';
+
+this.props.openObjectBrowser(getObjectBrowserOptions(this.props));
+```
 
 ## Installation
 
-To install your project, you must choose the method appropriate to your version of Volto.
-
-
-### Volto 18 and later
-
-Add `volto-interaktiv-alttextgenerator` to your `package.json`:
+Add `@interaktivgmbh/volto-alttextgenerator` to your `package.json`:
 
 ```json
-"dependencies": {
-    "volto-interaktiv-alttextgenerator": "*"
-}
-```
-
-Add `volto-interaktiv-alttextgenerator` to your `volto.config.js`:
-
-```javascript
-const addons = ['volto-interaktiv-alttextgenerator'];
-```
-
-If this package provides a Volto theme, and you want to activate it, then add the following to your `volto.config.js`:
-
-```javascript
-const theme = 'volto-interaktiv-alttextgenerator';
-```
-
-### Volto 17 and earlier
-
-Create a new Volto project (you can skip this step if you already have one):
-
-```
-npm install -g yo @plone/generator-volto
-yo @plone/volto my-volto-project --addon volto-interaktiv-alttextgenerator
-cd my-volto-project
-```
-
-Add `volto-interaktiv-alttextgenerator` to your package.json:
-
-```JSON
 "addons": [
-    "volto-interaktiv-alttextgenerator"
-],
-
+    "@interaktivgmbh/volto-alttextgenerator"
+]
 "dependencies": {
-    "volto-interaktiv-alttextgenerator": "*"
+    "@interaktivgmbh/volto-alttextgenerator": "1.0.0"
 }
 ```
 
-Download and install the new add-on by running:
+Add `@interaktivgmbh/volto-alttextgenerator` to your `volto.config.js`:
 
-```
-yarn install
-```
-
-Start volto with:
-
-```
-yarn start
-```
-
-## Test installation
-
-Visit http://localhost:3000/ in a browser, login, and check the awesome new features.
-
-
-## Development
-
-The development of this add-on is done in isolation using a new approach using pnpm workspaces and latest `mrs-developer` and other Volto core improvements.
-For this reason, it only works with pnpm and Volto 18 (currently in alpha).
-
-
-### Prerequisites ✅
-
--   An [operating system](https://6.docs.plone.org/install/create-project-cookieplone.html#prerequisites-for-installation) that runs all the requirements mentioned.
--   [nvm](https://6.docs.plone.org/install/create-project-cookieplone.html#nvm)
--   [Node.js and pnpm](https://6.docs.plone.org/install/create-project.html#node-js) 24
--   [Make](https://6.docs.plone.org/install/create-project-cookieplone.html#make)
--   [Git](https://6.docs.plone.org/install/create-project-cookieplone.html#git)
--   [Docker](https://docs.docker.com/get-started/get-docker/) (optional)
-
-### Installation 🔧
-
-1.  Clone this repository, then change your working directory.
-
-    ```shell
-    git clone git@github.com:interaktivgmbh/volto-interaktiv-alttextgenerator.git
-    cd volto-interaktiv-alttextgenerator
-    ```
-
-2.  Install this code base.
-
-    ```shell
-    make install
-    ```
-
-
-### Make convenience commands
-
-Run `make help` to list the available commands.
-
-```text
-help                             Show this help
-install                          Installs the add-on in a development environment
-start                            Starts Volto, allowing reloading of the add-on during development
-build                            Build a production bundle for distribution of the project with the add-on
-i18n                             Sync i18n
-ci-i18n                          Check if i18n is not synced
-format                           Format codebase
-lint                             Lint, or catch and remove problems, in code base
-release                          Release the add-on on npmjs.org
-release-dry-run                  Dry-run the release of the add-on on npmjs.org
-test                             Run unit tests
-ci-test                          Run unit tests in CI
-backend-docker-start             Starts a Docker-based backend for development
-storybook-start                  Start Storybook server on port 6006
-storybook-build                  Build Storybook
-acceptance-frontend-dev-start    Start acceptance frontend in development mode
-acceptance-frontend-prod-start   Start acceptance frontend in production mode
-acceptance-backend-start         Start backend acceptance server
-ci-acceptance-backend-start      Start backend acceptance server in headless mode for CI
-acceptance-test                  Start Cypress in interactive mode
-ci-acceptance-test               Run cypress tests in headless mode for CI
-```
-
-### Development environment set up
-
-Install package requirements.
-
-```shell
-make install
-```
-
-### Start developing
-
-Start the backend.
-
-```shell
-make backend-docker-start
-```
-
-In a separate terminal session, start the frontend.
-
-```shell
-make start
-```
-
-### Lint code
-
-Run ESlint, Prettier, and Stylelint in analyze mode.
-
-```shell
-make lint
-```
-
-### Format code
-
-Run ESlint, Prettier, and Stylelint in fix mode.
-
-```shell
-make format
-```
-
-### i18n
-
-Extract the i18n messages to locales.
-
-```shell
-make i18n
-```
-
-### Unit tests
-
-Run unit tests.
-
-```shell
-make test
-```
-
-### Run Cypress tests
-
-Run each of these steps in separate terminal sessions.
-
-In the first session, start the frontend in development mode.
-
-```shell
-make acceptance-frontend-dev-start
-```
-
-In the second session, start the backend acceptance server.
-
-```shell
-make acceptance-backend-start
-```
-
-In the third session, start the Cypress interactive test runner.
-
-```shell
-make acceptance-test
+```javascript
+const addons = ['@interaktivgmbh/volto-alttextgenerator'];
 ```
 
 ## License
 
 The project is licensed under the MIT license.
 
-## Credits and acknowledgements 🙏
+## Credits and acknowledgements
 
 Generated using [Cookieplone (0.9.10)](https://github.com/plone/cookieplone) and [cookieplone-templates (eae593d)](https://github.com/plone/cookieplone-templates/commit/eae593d854b137cc3ab915e1c638170cbdfb3a78) on 2025-11-21 12:21:53.116148. A special thanks to all contributors and supporters!
