@@ -26,7 +26,10 @@ import clearSVG from '@plone/volto/icons/clear.svg';
 
 import Data from './Data';
 // INTERAKTIV START
-import { getAltTextFromBlock, postUploadHandler } from '@interaktivgmbh/volto-alttextgenerator/helpers';
+import {
+  getAltTextFromBlock,
+  postUploadHandler,
+} from '@interaktivgmbh/volto-alttextgenerator/helpers';
 import { updateAltTextSuggestion } from '@interaktivgmbh/volto-alttextgenerator/actions/alttexts/alttexts';
 // END
 
@@ -293,21 +296,22 @@ class EditComponent extends Component {
     });
     readAsDataURL(file).then((data) => {
       const fields = data.match(/^data:(.*);(.*),(.*)$/);
-      this.props.createContent(
-        getBaseUrl(this.props.pathname),
-        {
-          '@type': 'Image',
-          image: {
-            data: fields[3],
-            encoding: fields[2],
-            'content-type': fields[1],
-            filename: file.name,
+      this.props
+        .createContent(
+          getBaseUrl(this.props.pathname),
+          {
+            '@type': 'Image',
+            image: {
+              data: fields[3],
+              encoding: fields[2],
+              'content-type': fields[1],
+              filename: file.name,
+            },
           },
-        },
-        this.props.block,
-      )
-      // INTERAKTIV START
-      .then((res) => postUploadHandler(this, res));
+          this.props.block,
+        )
+        // INTERAKTIV START
+        .then((res) => postUploadHandler(this, res));
       // END
     });
   }
