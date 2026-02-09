@@ -30,9 +30,7 @@
     "dry-release": "pnpm --filter @interaktivgmbh/volto-alttextgenerator dry-release",
     "release": "pnpm --filter @interaktivgmbh/volto-alttextgenerator release",
     "release-major-alpha": "pnpm --filter @interaktivgmbh/volto-alttextgenerator release-major-alpha",
-    "release-alpha": "pnpm --filter @interaktivgmbh/volto-alttextgenerator release-alpha",
-    "storybook": "VOLTOCONFIG=$(pwd)/volto.config.js pnpm --filter @plone/volto storybook dev -p 6006 -c $(pwd)/.storybook",
-    "storybook-build": "VOLTOCONFIG=$(pwd)/volto.config.js pnpm --filter @plone/volto build-storybook -c $(pwd)/.storybook"
+    "release-alpha": "pnpm --filter @interaktivgmbh/volto-alttextgenerator release-alpha"
   },
   "dependencies": {
     "@interaktivgmbh/volto-alttextgenerator": "workspace:*"
