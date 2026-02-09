@@ -1,7 +1,5 @@
-import React from 'react';
 import PropTypes from 'prop-types';
 
-import { flattenToAppURL } from '@plone/volto/helpers';
 import config from '@plone/volto/registry';
 // INTERAKTIV START
 import { useIntl } from 'react-intl';
@@ -12,39 +10,64 @@ import DefaultImageSVG from '@plone/volto/components/manage/Blocks/Listing/defau
 
 /**
  * Renders a preview image for a catalog brain result item.
- *
  */
-function PreviewImage(props) {
-  const { item, size = 'preview', alt, ...rest } = props;
+function PreviewImage({ item, alt, image_field, showDefault = true, ...rest }) {
   // INTERAKTIV START
   const intl = useIntl();
   // END
-  const src = item.image_field
-    ? flattenToAppURL(`${item['@id']}/@@images/${item.image_field}/${size}`)
-    : config.getComponent({
-        name: 'DefaultImage',
-        dependencies: ['listing', 'summary'],
-      }).component || DefaultImageSVG;
+  const Image = config.getComponent({ name: 'Image' }).component;
 
   // INTERAKTIV START
   const altText = alt || getAltTextFromObject(item, intl);
   // END
 
-  return (
-    <img src={src} alt={/* INTERAKTIV START */ altText /* END */} {...rest} />
+  const image = (
+    <Image
+      item={item}
+      image_field={image_field || item.image_field}
+      // INTERAKTIV START
+      alt={altText}
+      // END
+      {...rest}
+    />
   );
+
+  if (!image && !showDefault) return null;
+
+  if (image_field || item?.image_field) {
+    return image;
+  } else {
+    return (
+      <img
+        src={
+          config.getComponent({
+            name: 'DefaultImage',
+            dependencies: ['listing', 'summary'],
+          }).component || DefaultImageSVG
+        }
+        // INTERAKTIV START
+        alt={altText}
+        // END
+        {...rest}
+        width="400"
+        height="300"
+      />
+    );
+  }
 }
 
 PreviewImage.propTypes = {
-  size: PropTypes.string,
   item: PropTypes.shape({
     '@id': PropTypes.string.isRequired,
-    image_field: PropTypes.string,
     title: PropTypes.string.isRequired,
+    image_field: PropTypes.string,
+    image_scales: PropTypes.object,
+    showDefault: PropTypes.bool,
     // INTERAKTIV START
     alt_text: PropTypes.string,
     // END
   }),
+  alt: PropTypes.string.isRequired,
 };
 
 export default PreviewImage;

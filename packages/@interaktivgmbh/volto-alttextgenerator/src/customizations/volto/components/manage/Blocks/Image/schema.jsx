@@ -4,10 +4,6 @@ import addonMessages from '@interaktivgmbh/volto-alttextgenerator/messages';
 // END
 
 const messages = defineMessages({
-  Source: {
-    id: 'Source',
-    defaultMessage: 'Source',
-  },
   Image: {
     id: 'Image',
     defaultMessage: 'Image',
@@ -69,10 +65,6 @@ export function ImageSchema({ formData, intl }) {
         : []),
     ],
     properties: {
-      url: {
-        title: intl.formatMessage(messages.Source),
-        widget: 'url',
-      },
       alt: {
         title: intl.formatMessage(messages.AltText),
         description: (
@@ -98,10 +90,12 @@ export function ImageSchema({ formData, intl }) {
       align: {
         title: intl.formatMessage(messages.Align),
         widget: 'align',
+        default: 'center',
       },
       size: {
         title: intl.formatMessage(messages.size),
         widget: 'image_size',
+        default: 'l',
       },
       href: {
         title: intl.formatMessage(messages.LinkTo),
@@ -118,3 +112,14 @@ export function ImageSchema({ formData, intl }) {
     required: [],
   };
 }
+
+export const gridImageDisableSizeAndPositionHandlersSchema = ({
+  schema,
+  formData,
+  intl,
+}) => {
+  schema.fieldsets[0].fields = schema.fieldsets[0].fields.filter(
+    (item) => !['align', 'size'].includes(item),
+  );
+  return schema;
+};
