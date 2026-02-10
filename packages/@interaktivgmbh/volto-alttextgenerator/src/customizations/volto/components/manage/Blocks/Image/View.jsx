@@ -6,10 +6,14 @@ import { flattenToAppURL, isInternalURL } from '@plone/volto/helpers/Url/Url';
 import { withBlockExtensions } from '@plone/volto/helpers/Extensions';
 import config from '@plone/volto/registry';
 // INTERAKTIV
+import { useIntl } from 'react-intl';
 import { getAltTextFromBlock } from '@interaktivgmbh/volto-alttextgenerator/helpers';
 // END
 
 export const View = ({ className, data, detached, properties, style }) => {
+  // INTERAKTIV START
+  const intl = useIntl();
+  // END
   const href = data?.href?.[0]?.['@id'] || '';
 
   const Image = config.getComponent({ name: 'Image' }).component;

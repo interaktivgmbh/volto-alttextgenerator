@@ -3,269 +3,77 @@
  * @module components/manage/Blocks/Image/Edit
  */
 
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { compose } from 'redux';
-import { readAsDataURL } from 'promise-file-reader';
-import { Button, Dimmer, Input, Loader, Message } from 'semantic-ui-react';
-import { defineMessages, injectIntl } from 'react-intl';
-import loadable from '@loadable/component';
+import React from 'react';
 import cx from 'classnames';
-import { isEqual } from 'lodash';
+import ImageSidebar from '@plone/volto/components/manage/Blocks/Image/ImageSidebar';
+import SidebarPortal from '@plone/volto/components/manage/Sidebar/SidebarPortal';
 
-import { Icon, ImageSidebar, SidebarPortal } from '@plone/volto/components';
-import {
-  flattenToAppURL,
-  getBaseUrl,
-  isInternalURL,
-  validateFileUploadSize,
-  withBlockExtensions,
-} from '@plone/volto/helpers';
-import { createContent } from '@plone/volto/actions';
+import { flattenToAppURL, isInternalURL } from '@plone/volto/helpers/Url/Url';
+import { withBlockExtensions } from '@plone/volto/helpers/Extensions';
+import config from '@plone/volto/registry';
+
+import { ImageInput } from '@plone/volto/components/manage/Widgets/ImageWidget';
+
 // INTERAKTIV START
-import { updateAltTextSuggestion } from '@interaktivgmbh/volto-alttextgenerator/actions/alttexts/alttexts';
 import {
+  constructContext,
   getAltTextFromBlock,
   postUploadHandler,
 } from '@interaktivgmbh/volto-alttextgenerator/helpers';
+import { useIntl } from 'react-intl';
+import { useDispatch } from 'react-redux';
 // END
-import imageBlockSVG from '@plone/volto/components/manage/Blocks/Image/block-image.svg';
-import clearSVG from '@plone/volto/icons/clear.svg';
-import navTreeSVG from '@plone/volto/icons/nav.svg';
-import aheadSVG from '@plone/volto/icons/ahead.svg';
-import uploadSVG from '@plone/volto/icons/upload.svg';
 
-const Dropzone = loadable(() => import('react-dropzone'));
+function Edit(props) {
+  const { data } = props;
+  // INTERAKTIV START
+  const intl = useIntl();
+  const dispatch = useDispatch();
+  // END
+  const Image = config.getComponent({ name: 'Image' }).component;
 
-const messages = defineMessages({
-  ImageBlockInputPlaceholder: {
-    id: 'Browse the site, drop an image, or type an URL',
-    defaultMessage: 'Browse the site, drop an image, or type an URL',
-  },
-  uploadingImage: {
-    id: 'Uploading image',
-    defaultMessage: 'Uploading image',
-  },
-});
+  const handleChange = React.useCallback(
+    async (id, image, { image_field, image_scales, title } = {}) => {
+      const url = image ? image['@id'] || image : '';
 
-/**
- * Edit image block class.
- * @class Edit
- * @extends Component
- */
-class Edit extends Component {
-  /**
-   * Property types.
-   * @property {Object} propTypes Property types.
-   * @static
-   */
-  static propTypes = {
-    selected: PropTypes.bool.isRequired,
-    block: PropTypes.string.isRequired,
-    index: PropTypes.number.isRequired,
-    data: PropTypes.objectOf(PropTypes.any).isRequired,
-    content: PropTypes.objectOf(PropTypes.any).isRequired,
-    request: PropTypes.shape({
-      loading: PropTypes.bool,
-      loaded: PropTypes.bool,
-    }).isRequired,
-    pathname: PropTypes.string.isRequired,
-    onChangeBlock: PropTypes.func.isRequired,
-    onSelectBlock: PropTypes.func.isRequired,
-    onDeleteBlock: PropTypes.func.isRequired,
-    onFocusPreviousBlock: PropTypes.func.isRequired,
-    onFocusNextBlock: PropTypes.func.isRequired,
-    handleKeyDown: PropTypes.func.isRequired,
-    createContent: PropTypes.func.isRequired,
-    openObjectBrowser: PropTypes.func.isRequired,
-    // INTERAKTIV START
-    updateAltTextSuggestion: PropTypes.func.isRequired,
-    // END
-  };
-
-  state = {
-    uploading: false,
-    url: '',
-    dragging: false,
-  };
-
-  /**
-   * Component will receive props
-   * @method componentWillReceiveProps
-   * @param {Object} nextProps Next properties
-   * @returns {undefined}
-   */
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    if (
-      this.props.request.loading &&
-      nextProps.request.loaded &&
-      this.state.uploading
-    ) {
-      this.setState({
-        uploading: false,
+      props.onChangeBlock(props.block, {
+        ...props.data,
+        url: flattenToAppURL(url),
+        image_field,
+        image_scales,
+        alt: props.data.alt || title || '',
       });
+    },
+    [props],
+  );
 
-      this.props.onChangeBlock(this.props.block, {
-        ...this.props.data,
-        url: nextProps.content['@id'],
-        alt: '',
-        // INTERAKTIV START
-        alt_ai_generated: false,
-        // END
-      });
-    }
-  }
+  // INTERAKTIV START
+  const doGenerateAltText = React.useCallback(
+    (res) => {
+      // avoid stale closure
+      const newData = {
+        ...data,
+        url: flattenToAppURL(res['@id']),
+        image_field: 'image',
+        image_scales: { image: [res.image] },
+      };
+      let context = constructContext(
+        {
+          onChangeBlock: props.onChangeBlock,
+          block: props.block,
+          data: newData,
+        },
+        dispatch,
+        intl,
+      );
+      postUploadHandler(context, res);
+    },
+    [props.onChangeBlock, props.block, data, dispatch, intl],
+  );
+  // END
 
-  /**
-   * @param {*} nextProps
-   * @returns {boolean}
-   * @memberof Edit
-   */
-  shouldComponentUpdate(nextProps) {
-    return (
-      this.props.selected ||
-      nextProps.selected ||
-      !isEqual(this.props.data, nextProps.data)
-    );
-  }
-
-  /**
-   * Upload image handler (not used), but useful in case that we want a button
-   * not powered by react-dropzone
-   * @method onUploadImage
-   * @returns {undefined}
-   */
-  onUploadImage = (e) => {
-    e.stopPropagation();
-    const file = e.target.files[0];
-    if (!validateFileUploadSize(file, this.props.intl.formatMessage)) return;
-    this.setState({
-      uploading: true,
-    });
-    readAsDataURL(file).then((data) => {
-      const fields = data.match(/^data:(.*);(.*),(.*)$/);
-      this.props
-        .createContent(
-          getBaseUrl(this.props.pathname),
-          {
-            '@type': 'Image',
-            title: file.name,
-            image: {
-              data: fields[3],
-              encoding: fields[2],
-              'content-type': fields[1],
-              filename: file.name,
-            },
-          },
-          this.props.block,
-          // INTERAKTIV START
-        )
-        .then((res) => postUploadHandler(this, res));
-      // END
-    });
-  };
-
-  /**
-   * Change url handler
-   * @method onChangeUrl
-   * @param {Object} target Target object
-   * @returns {undefined}
-   */
-  onChangeUrl = ({ target }) => {
-    this.setState({
-      url: target.value,
-    });
-  };
-
-  /**
-   * Submit url handler
-   * @method onSubmitUrl
-   * @param {object} e Event
-   * @returns {undefined}
-   */
-  onSubmitUrl = () => {
-    this.props.onChangeBlock(this.props.block, {
-      ...this.props.data,
-      url: flattenToAppURL(this.state.url),
-    });
-  };
-
-  /**
-   * Drop handler
-   * @method onDrop
-   * @param {array} files File objects
-   * @returns {undefined}
-   */
-  onDrop = (files) => {
-    if (!validateFileUploadSize(files[0], this.props.intl.formatMessage)) {
-      this.setState({ dragging: false });
-      return;
-    }
-    this.setState({ uploading: true });
-
-    readAsDataURL(files[0]).then((data) => {
-      const fields = data.match(/^data:(.*);(.*),(.*)$/);
-      this.props
-        .createContent(
-          getBaseUrl(this.props.pathname),
-          {
-            '@type': 'Image',
-            title: files[0].name,
-            image: {
-              data: fields[3],
-              encoding: fields[2],
-              'content-type': fields[1],
-              filename: files[0].name,
-            },
-          },
-          this.props.block,
-          // INTERAKTIV START
-        )
-        .then((res) => postUploadHandler(this, res));
-      // END
-    });
-  };
-
-  /**
-   * Keydown handler on Variant Menu Form
-   * This is required since the ENTER key is already mapped to a onKeyDown
-   * event and needs to be overriden with a child onKeyDown.
-   * @method onKeyDownVariantMenuForm
-   * @param {Object} e Event object
-   * @returns {undefined}
-   */
-  onKeyDownVariantMenuForm = (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      e.stopPropagation();
-      this.onSubmitUrl();
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      e.stopPropagation();
-      // TODO: Do something on ESC key
-    }
-  };
-  onDragEnter = () => {
-    this.setState({ dragging: true });
-  };
-  onDragLeave = () => {
-    this.setState({ dragging: false });
-  };
-
-  node = React.createRef();
-
-  /**
-   * Render method.
-   * @method render
-   * @returns {string} Markup for the component.
-   */
-  render() {
-    const { data } = this.props;
-    const placeholder =
-      this.props.data.placeholder ||
-      this.props.intl.formatMessage(messages.ImageBlockInputPlaceholder);
-    return (
+  return (
+    <>
       <div
         className={cx(
           'block image align',
@@ -276,170 +84,65 @@ class Edit extends Component {
         )}
       >
         {data.url ? (
-          <img
+          <Image
             className={cx({
               'full-width': data.align === 'full',
               large: data.size === 'l',
               medium: data.size === 'm',
               small: data.size === 's',
             })}
-            src={
-              isInternalURL(data.url)
-                ? // Backwards compat in the case that the block is storing the full server URL
-                  (() => {
-                    if (data.size === 'l')
-                      return `${flattenToAppURL(data.url)}/@@images/image`;
-                    if (data.size === 'm')
-                      return `${flattenToAppURL(
-                        data.url,
-                      )}/@@images/image/preview`;
-                    if (data.size === 's')
-                      return `${flattenToAppURL(data.url)}/@@images/image/mini`;
-                    return `${flattenToAppURL(data.url)}/@@images/image`;
-                  })()
-                : data.url
+            item={
+              data.image_scales
+                ? {
+                    '@id': data.url,
+                    image_field: data.image_field,
+                    image_scales: data.image_scales,
+                  }
+                : undefined
             }
-            alt={getAltTextFromBlock(data, this.props.intl)}
+            src={
+              data.image_scales
+                ? undefined
+                : isInternalURL(data.url)
+                  ? // Backwards compat in the case that the block is storing the full server URL
+                    (() => {
+                      if (data.size === 'l')
+                        return `${flattenToAppURL(data.url)}/@@images/image`;
+                      if (data.size === 'm')
+                        return `${flattenToAppURL(
+                          data.url,
+                        )}/@@images/image/preview`;
+                      if (data.size === 's')
+                        return `${flattenToAppURL(data.url)}/@@images/image/mini`;
+                      return `${flattenToAppURL(data.url)}/@@images/image`;
+                    })()
+                  : data.url
+            }
+            sizes={config.blocks.blocksConfig.image.getSizes(data)}
+            // INTERAKTIV START
+            alt={getAltTextFromBlock(data, intl)}
+            // END
+            loading="lazy"
+            responsive={true}
           />
         ) : (
-          <div>
-            {this.props.editable && (
-              <Dropzone
-                noClick
-                onDrop={this.onDrop}
-                onDragEnter={this.onDragEnter}
-                onDragLeave={this.onDragLeave}
-                className="dropzone"
-              >
-                {({ getRootProps, getInputProps }) => (
-                  <div {...getRootProps()}>
-                    <Message>
-                      {this.state.dragging && <Dimmer active></Dimmer>}
-                      {this.state.uploading && (
-                        <Dimmer active>
-                          <Loader indeterminate>
-                            {this.props.intl.formatMessage(
-                              messages.uploadingImage,
-                            )}
-                          </Loader>
-                        </Dimmer>
-                      )}
-                      <div className="no-image-wrapper">
-                        <img src={imageBlockSVG} alt="" />
-                        <div className="toolbar-inner">
-                          <Button.Group>
-                            <Button
-                              basic
-                              icon
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                this.props.openObjectBrowser({
-                                  // INTERAKTIV START
-                                  mode: 'image',
-                                  onSelectItem: (url, item) => {
-                                    const aiGenerated =
-                                      item.alt_text_ai_generated;
-
-                                    const additionalData = aiGenerated
-                                      ? {
-                                          model_used: item.alt_text_model_used,
-                                          generation_date:
-                                            item.alt_text_generation_date,
-                                        }
-                                      : {};
-
-                                    this.props.onChangeBlock(this.props.block, {
-                                      ...this.props.data,
-                                      alt: item.alt_text ?? '',
-                                      alt_ai_generated: aiGenerated,
-                                      ...additionalData,
-                                      url,
-                                    });
-                                  },
-                                  // END
-                                });
-                              }}
-                            >
-                              <Icon name={navTreeSVG} size="24px" />
-                            </Button>
-                          </Button.Group>
-                          <Button.Group>
-                            <label className="ui button basic icon">
-                              <Icon name={uploadSVG} size="24px" />
-                              <input
-                                {...getInputProps({
-                                  type: 'file',
-                                  onChange: this.onUploadImage,
-                                  style: { display: 'none' },
-                                })}
-                              />
-                            </label>
-                          </Button.Group>
-                          <Input
-                            onKeyDown={this.onKeyDownVariantMenuForm}
-                            onChange={this.onChangeUrl}
-                            placeholder={placeholder}
-                            value={this.state.url}
-                            onClick={(e) => {
-                              e.target.focus();
-                            }}
-                            onFocus={(e) => {
-                              this.props.onSelectBlock(this.props.id);
-                            }}
-                          />
-                          {this.state.url && (
-                            <Button.Group>
-                              <Button
-                                basic
-                                className="cancel"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  this.setState({ url: '' });
-                                }}
-                              >
-                                <Icon name={clearSVG} size="30px" />
-                              </Button>
-                            </Button.Group>
-                          )}
-                          <Button.Group>
-                            <Button
-                              basic
-                              primary
-                              disabled={!this.state.url}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                this.onSubmitUrl();
-                              }}
-                            >
-                              <Icon name={aheadSVG} size="30px" />
-                            </Button>
-                          </Button.Group>
-                        </div>
-                      </div>
-                    </Message>
-                  </div>
-                )}
-              </Dropzone>
-            )}
-          </div>
+          <ImageInput
+            onChange={handleChange}
+            // INTERAKTIV START
+            generateAltText={doGenerateAltText}
+            // END
+            placeholderLinkInput={data.placeholder}
+            block={props.block}
+            id={props.block}
+            objectBrowserPickerType={'image'}
+          />
         )}
-        <SidebarPortal selected={this.props.selected}>
-          <ImageSidebar {...this.props} />
+        <SidebarPortal selected={props.selected}>
+          <ImageSidebar {...props} />
         </SidebarPortal>
       </div>
-    );
-  }
+    </>
+  );
 }
 
-export default compose(
-  injectIntl,
-  withBlockExtensions,
-  connect(
-    (state, ownProps) => ({
-      request: state.content.subrequests[ownProps.block] || {},
-      content: state.content.subrequests[ownProps.block]?.data,
-    }),
-    { createContent, updateAltTextSuggestion },
-  ),
-)(Edit);
+export default withBlockExtensions(Edit);

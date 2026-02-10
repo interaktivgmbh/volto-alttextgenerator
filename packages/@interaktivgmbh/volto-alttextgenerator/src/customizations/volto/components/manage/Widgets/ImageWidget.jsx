@@ -66,6 +66,9 @@ const UnconnectedImageInput = (props) => {
   const {
     id,
     onChange,
+    // INTERAKTIV START
+    generateAltText,
+    // END
     onFocus,
     openObjectBrowser,
     value,
@@ -139,12 +142,20 @@ const UnconnectedImageInput = (props) => {
             },
             props.block || requestId,
           ),
-        );
+          // INTERAKTIV START
+        ).then((res) => {
+          if (!generateAltText) return;
+          generateAltText(res);
+        });
+        // END
       });
     },
     [
       restrictFileUpload,
       intl.formatMessage,
+      // INTERAKTIV START
+      generateAltText,
+      // END
       dispatch,
       props,
       contextUrl,
