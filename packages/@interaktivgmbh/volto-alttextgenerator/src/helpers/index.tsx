@@ -97,15 +97,15 @@ const getErrorMessage = (status: number): Message => {
 };
 
 export const showInfoToast = (title: string, content: string): void => {
-  toast.info(<Toast info title={title} content={content} />);
+  toast.info(<Toast info="true" title={title} content={content} />);
 };
 
 export const showErrorToast = (title: string, content: string): void => {
-  toast.error(<Toast error title={title} content={content} />);
+  toast.error(<Toast error="true" title={title} content={content} />);
 };
 
 export const showSuccessToast = (title: string, content: string): void => {
-  toast.success(<Toast success title={title} content={content} />);
+  toast.success(<Toast success="true" title={title} content={content} />);
 };
 
 const onSuccess = (
