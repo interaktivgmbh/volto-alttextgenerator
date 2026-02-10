@@ -69,6 +69,13 @@ export function ImageSchema({ formData, intl }) {
         title: intl.formatMessage(messages.AltText),
         description: (
           <>
+            {formData?.alt_ai_generated && (
+              <>
+                {intl.formatMessage(addonMessages.altTextAIHint)}
+                <br />
+                <br />
+              </>
+            )}
             <a
               href="https://www.w3.org/WAI/tutorials/images/decision-tree/"
               title={intl.formatMessage(messages.openLinkInNewTab)}
