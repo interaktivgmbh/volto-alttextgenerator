@@ -42,7 +42,6 @@ import { preloadLazyLibs } from '@plone/volto/helpers/Loadable';
 import { tryParseJSON } from '@plone/volto/helpers/FormValidation/FormValidation';
 // INTERAKTIV START
 import { updateAltTextSuggestion } from '@interaktivgmbh/volto-alttextgenerator/actions/alttexts/alttexts';
-import { postUploadHandler } from '@interaktivgmbh/volto-alttextgenerator/helpers';
 // END
 
 import saveSVG from '@plone/volto/icons/save.svg';
@@ -278,12 +277,10 @@ class Edit extends Component {
       .updateContent(getBaseUrl(this.props.pathname), data, headers)
       // INTERAKTIV START
       .then(() => {
-        if (this.props.content?.['@type'] === 'Image') {
-          // update image alt text silently
-          const mockResponse = {
-            '@id': this.props.content?.['@id'],
-          };
-          postUploadHandler(this, mockResponse, true);
+        const { content } = this.props;
+        if (content?.['@type'] === 'Image' && content?.['@id']) {
+          const url = flattenToAppURL(content['@id']);
+          this.props.updateAltTextSuggestion(url);
         }
       });
     // END

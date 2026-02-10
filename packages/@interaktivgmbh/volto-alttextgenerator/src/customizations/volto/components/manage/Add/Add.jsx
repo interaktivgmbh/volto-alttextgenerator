@@ -53,7 +53,6 @@ import { preloadLazyLibs } from '@plone/volto/helpers/Loadable';
 import config from '@plone/volto/registry';
 // INTERAKTIV START
 import { updateAltTextSuggestion } from '@interaktivgmbh/volto-alttextgenerator/actions/alttexts/alttexts';
-import { postUploadHandler } from '@interaktivgmbh/volto-alttextgenerator/helpers';
 // END
 
 import saveSVG from '@plone/volto/icons/save.svg';
@@ -239,9 +238,9 @@ class Add extends Component {
         // INTERAKTIV START
       })
       .then((res) => {
-        if (res['@type'] === 'Image') {
-          // update image alt text silently
-          postUploadHandler(this, res, true);
+        if (res?.['@type'] === 'Image' && res?.['@id']) {
+          const url = flattenToAppURL(res['@id']);
+          this.props.updateAltTextSuggestion(url);
         }
       });
     // END
