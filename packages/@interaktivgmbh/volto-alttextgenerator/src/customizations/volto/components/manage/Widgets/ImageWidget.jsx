@@ -228,11 +228,29 @@ const UnconnectedImageInput = (props) => {
                             mode: objectBrowserPickerType,
                             onSelectItem: onSelectItem
                               ? onSelectItem
-                              : (url, { title, image_field, image_scales }) => {
+                              : (url, item) => {
+                                  // INTERAKTIV START
+                                  const aiGenerated =
+                                    item.alt_text_ai_generated;
+
+                                  const additionalData = aiGenerated
+                                    ? {
+                                        model_used: item.alt_text_model_used,
+                                        generation_date:
+                                          item.alt_text_generation_date,
+                                      }
+                                    : {};
+                                  // END
+
                                   onChange(props.id, flattenToAppURL(url), {
-                                    title,
-                                    image_field,
-                                    image_scales,
+                                    title: item.title,
+                                    image_field: item.image_field,
+                                    image_scales: item.image_scales,
+                                    // INTERAKTIV START
+                                    alt: item.alt_text ?? '',
+                                    alt_ai_generated: aiGenerated,
+                                    ...additionalData,
+                                    // END
                                   });
                                 },
                             currentPath: contextUrl,
