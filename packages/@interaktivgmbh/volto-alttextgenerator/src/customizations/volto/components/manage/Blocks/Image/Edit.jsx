@@ -33,15 +33,20 @@ function Edit(props) {
   const Image = config.getComponent({ name: 'Image' }).component;
 
   const handleChange = React.useCallback(
-    async (id, image, { image_field, image_scales, title } = {}) => {
+    async (id, image, item = {}) => {
       const url = image ? image['@id'] || image : '';
 
       props.onChangeBlock(props.block, {
         ...props.data,
         url: flattenToAppURL(url),
-        image_field,
-        image_scales,
-        alt: props.data.alt || title || '',
+        // INTERAKTIV START
+        image_field: item.image_field,
+        image_scales: item.image_scales,
+        alt: item.alt || props.data.alt || '',
+        alt_ai_generated: item.alt_ai_generated || false,
+        model_used: item.model_used,
+        generation_date: item.generation_date,
+        // END
       });
     },
     [props],
