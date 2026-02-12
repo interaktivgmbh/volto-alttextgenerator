@@ -8,6 +8,12 @@
 
 <!-- towncrier release notes start -->
 
+## 2.0.0 (2026-02-12)
+
+### Breaking
+
+- Migrate to Volto version 18.9.1. @arybakov05
+
 ## 1.0.0 (2025-12-17)
 
 ### Internal
