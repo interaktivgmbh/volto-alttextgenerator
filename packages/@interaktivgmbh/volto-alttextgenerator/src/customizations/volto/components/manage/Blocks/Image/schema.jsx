@@ -70,11 +70,9 @@ export function ImageSchema({ formData, intl }) {
         description: (
           <>
             {formData?.alt_ai_generated && (
-              <>
+              <p id="image-schema-alt-ai-hint">
                 {intl.formatMessage(addonMessages.altTextAIHint)}
-                <br />
-                <br />
-              </>
+              </p>
             )}
             <a
               href="https://www.w3.org/WAI/tutorials/images/decision-tree/"
