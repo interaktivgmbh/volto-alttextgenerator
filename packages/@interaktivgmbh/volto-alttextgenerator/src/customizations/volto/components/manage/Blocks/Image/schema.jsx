@@ -4,10 +4,6 @@ import addonMessages from '@interaktivgmbh/volto-alttextgenerator/messages';
 // END
 
 const messages = defineMessages({
-  Source: {
-    id: 'Source',
-    defaultMessage: 'Source',
-  },
   Image: {
     id: 'Image',
     defaultMessage: 'Image',
@@ -69,14 +65,15 @@ export function ImageSchema({ formData, intl }) {
         : []),
     ],
     properties: {
-      url: {
-        title: intl.formatMessage(messages.Source),
-        widget: 'url',
-      },
       alt: {
         title: intl.formatMessage(messages.AltText),
         description: (
           <>
+            {formData?.alt_ai_generated && (
+              <p id="image-schema-alt-ai-hint">
+                {intl.formatMessage(addonMessages.altTextAIHint)}
+              </p>
+            )}
             <a
               href="https://www.w3.org/WAI/tutorials/images/decision-tree/"
               title={intl.formatMessage(messages.openLinkInNewTab)}
@@ -98,10 +95,12 @@ export function ImageSchema({ formData, intl }) {
       align: {
         title: intl.formatMessage(messages.Align),
         widget: 'align',
+        default: 'center',
       },
       size: {
         title: intl.formatMessage(messages.size),
         widget: 'image_size',
+        default: 'l',
       },
       href: {
         title: intl.formatMessage(messages.LinkTo),
@@ -118,3 +117,14 @@ export function ImageSchema({ formData, intl }) {
     required: [],
   };
 }
+
+export const gridImageDisableSizeAndPositionHandlersSchema = ({
+  schema,
+  formData,
+  intl,
+}) => {
+  schema.fieldsets[0].fields = schema.fieldsets[0].fields.filter(
+    (item) => !['align', 'size'].includes(item),
+  );
+  return schema;
+};

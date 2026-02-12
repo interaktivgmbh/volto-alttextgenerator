@@ -1,27 +1,22 @@
-/**
- * View image block.
- * @module components/manage/Blocks/Image/View
- */
-
 import React from 'react';
 import PropTypes from 'prop-types';
-import { UniversalLink } from '@plone/volto/components';
+import UniversalLink from '@plone/volto/components/manage/UniversalLink/UniversalLink';
 import cx from 'classnames';
-import { withBlockExtensions } from '@plone/volto/helpers';
-import { flattenToAppURL, isInternalURL } from '@plone/volto/helpers';
+import { flattenToAppURL, isInternalURL } from '@plone/volto/helpers/Url/Url';
+import { withBlockExtensions } from '@plone/volto/helpers/Extensions';
+import config from '@plone/volto/registry';
 // INTERAKTIV
+import { useIntl } from 'react-intl';
 import { getAltTextFromBlock } from '@interaktivgmbh/volto-alttextgenerator/helpers';
 // END
 
-/**
- * View image block class.
- * @class View
- * @extends Component
- */
-// INTERAKTIV START
-export const View = ({ data, detached, className, intl }) => {
+export const View = ({ className, data, detached, properties, style }) => {
+  // INTERAKTIV START
+  const intl = useIntl();
   // END
   const href = data?.href?.[0]?.['@id'] || '';
+
+  const Image = config.getComponent({ name: 'Image' }).component;
 
   return (
     <p
@@ -34,40 +29,54 @@ export const View = ({ data, detached, className, intl }) => {
         data.align,
         className,
       )}
+      style={style}
     >
       {data.url && (
         <>
           {(() => {
             const image = (
-              <img
+              <Image
                 className={cx({
                   'full-width': data.align === 'full',
                   large: data.size === 'l',
                   medium: data.size === 'm',
                   small: data.size === 's',
                 })}
-                src={
-                  isInternalURL(data.url)
-                    ? // Backwards compat in the case that the block is storing the full server URL
-                      (() => {
-                        if (data.size === 'l')
-                          return `${flattenToAppURL(data.url)}/@@images/image`;
-                        if (data.size === 'm')
-                          return `${flattenToAppURL(
-                            data.url,
-                          )}/@@images/image/preview`;
-                        if (data.size === 's')
-                          return `${flattenToAppURL(
-                            data.url,
-                          )}/@@images/image/mini`;
-                        return `${flattenToAppURL(data.url)}/@@images/image`;
-                      })()
-                    : data.url
+                item={
+                  data.image_scales
+                    ? {
+                        '@id': data.url,
+                        image_field: data.image_field,
+                        image_scales: data.image_scales,
+                      }
+                    : undefined
                 }
+                src={
+                  data.image_scales
+                    ? undefined
+                    : isInternalURL(data.url)
+                      ? // Backwards compat in the case that the block is storing the full server URL
+                        (() => {
+                          if (data.size === 'l')
+                            return `${flattenToAppURL(data.url)}/@@images/image`;
+                          if (data.size === 'm')
+                            return `${flattenToAppURL(
+                              data.url,
+                            )}/@@images/image/preview`;
+                          if (data.size === 's')
+                            return `${flattenToAppURL(
+                              data.url,
+                            )}/@@images/image/mini`;
+                          return `${flattenToAppURL(data.url)}/@@images/image`;
+                        })()
+                      : data.url
+                }
+                sizes={config.blocks.blocksConfig.image.getSizes(data)}
                 // INTERAKTIV START
                 alt={getAltTextFromBlock(data, intl)}
                 // END
                 loading="lazy"
+                responsive={true}
               />
             );
             if (href) {

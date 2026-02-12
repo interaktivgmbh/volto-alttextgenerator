@@ -8,7 +8,7 @@ import PropTypes from 'prop-types';
 import { Container as SemanticContainer } from 'semantic-ui-react';
 import { FormattedMessage } from 'react-intl';
 import prettybytes from 'pretty-bytes';
-import { flattenToAppURL } from '@plone/volto/helpers';
+import { flattenToAppURL } from '@plone/volto/helpers/Url/Url';
 import config from '@plone/volto/registry';
 // INTERAKTIV START
 import { useIntl } from 'react-intl';
@@ -25,6 +25,7 @@ const ImageView = ({ content }) => {
   // INTERAKTIV START
   const intl = useIntl();
   // END
+  const Image = config.getComponent({ name: 'Image' }).component;
   const Container =
     config.getComponent({ name: 'Container' }).component || SemanticContainer;
 
@@ -39,11 +40,13 @@ const ImageView = ({ content }) => {
       )}
       {content?.image?.download && (
         <a href={flattenToAppURL(content.image.download)}>
-          <img
+          <Image
+            item={content}
+            imageField="image"
             // INTERAKTIV START
             alt={getAltTextFromObject(content, intl)}
             // END
-            src={flattenToAppURL(content.image.scales.preview.download)}
+            responsive={true}
           />
           <figcaption>
             <FormattedMessage

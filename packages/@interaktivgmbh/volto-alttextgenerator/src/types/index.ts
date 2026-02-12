@@ -13,9 +13,8 @@ export interface AltTextSuggestionActionRequestData {
   path: string;
 }
 
-export type AltTextSuggestionAction = Action<
-  AltTextSuggestionActionRequestData
->;
+export type AltTextSuggestionAction =
+  Action<AltTextSuggestionActionRequestData>;
 
 export interface Message {
   id: string;

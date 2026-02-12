@@ -2,9 +2,13 @@ const fs = require('fs');
 const projectRootPath = __dirname;
 const { AddonRegistry } = require('@plone/registry/addon-registry');
 
-const nodeModulesLocation = `${projectRootPath}/packages/@interaktivgmbh/volto-alttextgenerator/node_modules`;
+let coreLocation;
+if (fs.existsSync(`${projectRootPath}/core`))
+  coreLocation = `${projectRootPath}/core`;
+else if (fs.existsSync(`${projectRootPath}/../../core`))
+  coreLocation = `${projectRootPath}/../../core`;
 
-const { registry } = AddonRegistry.init(`${nodeModulesLocation}/@plone/volto`);
+const { registry } = AddonRegistry.init(`${coreLocation}/packages/volto`);
 
 // Extends ESlint configuration for adding the aliases to `src` directories in Volto addons
 const addonAliases = Object.keys(registry.packages).map((o) => [
@@ -13,30 +17,17 @@ const addonAliases = Object.keys(registry.packages).map((o) => [
 ]);
 
 module.exports = {
-  ignorePatterns: ['node_modules/'],
-  extends: `${nodeModulesLocation}/@plone/volto/.eslintrc`,
+  extends: `${coreLocation}/packages/volto/.eslintrc`,
   rules: {
     'import/no-unresolved': 1,
   },
-  overrides: [
-    {
-      files: ['**/*.ts', '**/*.tsx'],
-      parser: '@typescript-eslint/parser',
-      parserOptions: {
-        ecmaVersion: 2020,
-        sourceType: 'module',
-        project: false,
-      },
-      plugins: ['@typescript-eslint'],
-    },
-  ],
   settings: {
     'import/resolver': {
       alias: {
         map: [
-          ['@plone/volto', `${nodeModulesLocation}/@plone/volto/src`],
-          ['@plone/volto-slate', `${nodeModulesLocation}/@plone/volto-slate/src`],
-          ['@plone/registry', `${nodeModulesLocation}/@plone/registry/src`],
+          ['@plone/volto', `${coreLocation}/packages/volto/src`],
+          ['@plone/volto-slate', `${coreLocation}/packages/volto-slate/src`],
+          ['@plone/registry', `${coreLocation}/packages/registry/src`],
           [
             '@interaktivgmbh/volto-alttextgenerator',
             './packages/@interaktivgmbh/volto-alttextgenerator/src',
