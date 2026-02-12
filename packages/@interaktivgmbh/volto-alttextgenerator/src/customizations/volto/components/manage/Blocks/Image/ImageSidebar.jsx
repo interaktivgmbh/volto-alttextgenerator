@@ -9,6 +9,9 @@ import { BlockDataForm } from '@plone/volto/components/manage/Form';
 import { ImageSchema } from './schema';
 import imageSVG from '@plone/volto/icons/image.svg';
 import trashSVG from '@plone/volto/icons/delete.svg';
+// INTERAKTIV START
+import '@interaktivgmbh/volto-alttextgenerator/theme/styles.css';
+// END
 
 const ImageSidebar = (props) => {
   const {
