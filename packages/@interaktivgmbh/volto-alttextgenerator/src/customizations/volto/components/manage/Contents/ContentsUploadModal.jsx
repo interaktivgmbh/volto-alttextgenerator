@@ -26,7 +26,7 @@ import { validateFileUploadSize } from '@plone/volto/helpers/FormValidation/Form
 import { usePrevious } from '@plone/volto/helpers/Utils/usePrevious';
 // INTERAKTIV START
 import { updateAltTextSuggestion } from '@interaktivgmbh/volto-alttextgenerator/actions/alttexts/alttexts';
-import { flattenToAppURL } from '@plone/volto/src/helpers/Url/Url';
+import { flattenToAppURL } from '@plone/volto/helpers/Url/Url';
 // END
 
 const Dropzone = loadable(() => import('react-dropzone'));
