@@ -8,6 +8,12 @@
 
 <!-- towncrier release notes start -->
 
+## 2.1.0 (2026-02-27)
+
+### Bugfix
+
+- Replace customization component code with re-exports to src/components. @mxurice-rm [#5](https://github.com/interaktivgmbh/volto-alttextgenerator/issues/5)
+
 ## 2.0.0 (2026-02-12)
 
 ### Breaking
@@ -18,4 +24,4 @@
 
 ### Internal
 
-- Initial release. @arybakov05 [#1](https://github.com/interaktivgmbh/volto-alttextgenerator/issue/1)
+- Initial release. @arybakov05 [#1](https://github.com/interaktivgmbh/volto-alttextgenerator/issues/1)

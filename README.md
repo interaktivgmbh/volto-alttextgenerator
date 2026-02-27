@@ -133,7 +133,7 @@ Add `@interaktivgmbh/volto-alttextgenerator` to your `package.json`:
     "@interaktivgmbh/volto-alttextgenerator"
 ]
 "dependencies": {
-    "@interaktivgmbh/volto-alttextgenerator": "1.0.0"
+    "@interaktivgmbh/volto-alttextgenerator": "2.1.0"
 }
 ```
 
